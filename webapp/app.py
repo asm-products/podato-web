@@ -2,14 +2,14 @@ import modify_pythonpath
 import flask
 import flask_restful
 
+from config import settings
+
 app = flask.Flask(__name__)
-api = flask_restful.Api(app, prefix='/api')
+app.config.from_object(settings)
 
-#DeleteMe: This is just for testing that everything works.
-class TestResource(flask_restful.Resource):
-    def get(self, name):
-        return {'hello': name}
+with app.app_context():
+    from users import users_blueprint
+    from api import api_blueprint
 
-
-
-api.add_resource(TestResource, '/<string:name>')
+    app.register_blueprint(users_blueprint, url_prefix="/auth")
+    app.register_blueprint(api_blueprint, url_prefix="/api")

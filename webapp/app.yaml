@@ -5,9 +5,29 @@ api_version: 1
 threadsafe: true
 
 handlers:
-- url: /.*
+
+- url: /auth/.*
   script: app.app
+
+- url: /api/.*
+  script: app.app
+
+- url: /
+  static_files: static/pages/index.html
+  upload: static/pages/index.html
+
+- url: /js
+  static_dir: static/js
+
+- url: /css
+  static_dir: static/css
+
+- url: /.*
+  static_dir: static/pages
 
 libraries:
 - name: jinja2
+  version: "2.6"
+
+- name: pycrypto
   version: "2.6"

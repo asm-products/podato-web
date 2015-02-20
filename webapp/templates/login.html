@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Log In</title>
+</head>
+<body>
+<ul>
+    <li><a href="{{ url_for('auth.provider_login', next=next, provider='facebook') }}">facebook</a></li>
+    <li><a href="{{ url_for('auth.provider_login', next=next, provider='twitter') }}">twitter</a></li>
+    <li><a href="{{ url_for('auth.provider_login', next=next, provider='google') }}">twitter</a></li>
+</ul>
+</body>
+</html>

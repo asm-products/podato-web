@@ -55,3 +55,6 @@ target
 
 # PyCharm
 .idea
+
+# ignore files that contain sensitive information
+webapp/config/settings.py
