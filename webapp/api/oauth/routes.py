@@ -1,8 +1,6 @@
 import logging
 
 from flask import render_template
-from flask import redirect
-from flask import url_for
 from flask import request
 
 from api import blueprint
@@ -17,16 +15,9 @@ def access_token():
 
 
 @blueprint.api_blueprint.route('/oauth/authorize', methods=['GET', 'POST'])
+@session.require
 @oauth.authorize_handler
 def authorize(*args, **kwargs):
-    # make sure that we have a user session
-
-    logging.warning("checking user: %s" % session.get_user())
-
-    if not session.get_user():
-        next = url_for("api.authorize", **request.args)
-        return redirect(url_for("auth.login", next=next))
-
     if request.method == 'GET':
 
         client_id = kwargs.get('client_id')

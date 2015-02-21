@@ -1,5 +1,9 @@
+import functools
 import os
 from flask import session
+from flask import url_for
+from flask import redirect
+from flask import request
 
 import cache
 
@@ -29,3 +33,13 @@ def get_user():
         raise errors.AuthError("The session isn't valid.")
 
     return User.get_by_id(user_id)
+
+def require(f):
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        if not get_user():
+            if request.args.get("provider"):
+                return redirect(url_for("auth.provider_login", provider=provider, next=request.url))
+            return redirect(url_for("auth.login", next=request.url))
+        return f(*args, **kwargs)
+    return wrapper

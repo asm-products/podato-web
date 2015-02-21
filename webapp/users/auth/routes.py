@@ -17,8 +17,9 @@ from users.auth import errors
 
 
 def _validate_next(next):
-    """next must be a relative url"""
-    if urlparse.urlparse(next).netloc:
+    """next must be a relative url, or its host must match the host where the request is running."""
+    parsed = urlparse.urlparse(next)
+    if parsed.netloc and parsed.netloc != request.host:
         raise errors.AuthError("Can't redirect to an absolute url after login. (%s is absolute.)" % next)
 
 def _save_next(next):
