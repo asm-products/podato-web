@@ -1,0 +1,33 @@
+{
+    "DEBUG": true,
+    "SECRET_KEY": "<SOME_SECRET_KEY>",
+    "JSON_AS_ASCII": false,
+
+    "FACEBOOK_CONSUMER_KEY": "<Your facebook app_id>",
+    "FACEBOOK_CONSUMER_SECRET": "<your facebook app secret>",
+
+    "TRUSTED_CLIENTS": [
+        {
+            "NAME": "podato-web",
+            "REDIRECT_URLS": [
+                "http://localhost:8080/auth/callback",
+                "https://podato-server.appspot.com/auth/callback"
+            ],
+            "CLIENT_ID": "af3aeb1f956d81e8da0e0cbadc396115",
+            "CLIENT_SECRET": "<some random secret>"
+        }
+    ],
+
+    "OAUTH_SCOPES": {
+        "publicuserinfo/read": {
+            "description": "Read your public user information like username and avatar."
+        },
+        "userinfo/email": {
+            "description": "Read your email address"
+        },
+        "userinfo/write": {
+            "description": "Modify your profile information including email address.",
+            "trusted_only": true
+        }
+    }
+}

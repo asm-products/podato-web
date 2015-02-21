@@ -57,4 +57,7 @@ target
 .idea
 
 # ignore files that contain sensitive information
-webapp/config/settings.py
+webapp/config/settings.json
+
+# ignore npm deps.
+webapp/node_modules
