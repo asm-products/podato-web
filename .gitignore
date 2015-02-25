@@ -60,4 +60,5 @@ target
 webapp/config/settings.json
 
 # ignore npm deps.
-webapp/node_modules
+node_modules
+npm-debug.log

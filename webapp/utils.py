@@ -20,7 +20,7 @@ def validate_url(url, allow_hash=True):
     parsed = urlparse.urlparse(url)
     if not parsed.scheme in ['http', 'https']:
         raise ValueError('The following url is invalid: %s, it has an'
-                         'unsupported scheme, only http and https are valid.')
+                         'unsupported scheme, only http and https are valid.' % url)
     if not parsed.netloc:
         raise ValueError('The following url is invalid: %s, it doesn\'t seem to have a domain.' % uri)
     if not allow_hash and parsed.fragment:
@@ -37,3 +37,13 @@ def validate_email(email):
 def generate_random_string():
     return os.urandom(16).encode('hex')
 
+
+class ValidatedModel(object):
+    """Make sure that the instance is validated before it is put into the datastore."""
+
+    def _pre_put_hook(self):
+        self.validate()
+
+    def validate(self):
+        """Subclasses should override this."""
+        raise NotImplemented("Subclasses of ValidatedModel should override the validate method.")

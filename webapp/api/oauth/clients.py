@@ -4,6 +4,7 @@ from google.appengine.ext import ndb
 from google.appengine.api import mail
 
 from flask import current_app
+from flask import url_for
 
 import utils
 
@@ -20,7 +21,7 @@ def _split_lines(t):
     lines = map(strip, t.split('\n'))
 
 
-class Application(ndb.Model):
+class Application(ndb.Model, utils.ValidatedModel):
     """An application that would like to integrate with us.
     One application can have multiple clients."""
 
@@ -77,7 +78,7 @@ class Application(ndb.Model):
         return client
 
 
-class Client(ndb.Model):
+class Client(ndb.Model, utils.ValidatedModel):
     """A client that has credentials to communicate with us."""
     app_key = ndb.KeyProperty(Application, required=True)
     name = ndb.StringProperty(required=True)
@@ -85,8 +86,17 @@ class Client(ndb.Model):
     is_confidential = ndb.BooleanProperty(default=True)
     client_secret = ndb.StringProperty(required=True)
 
-    redirect_uris = ndb.StringProperty(repeated=True)
+    own_redirect_uris = ndb.StringProperty(repeated=True)
+    javascript_origins = ndb.StringProperty(repeated=True)
     default_scopes = ndb.StringProperty(repeated=True)
+
+    @property
+    def redirect_uris(self):
+        rv = self.own_redirect_uris
+        if self.javascript_origins:
+            for origin in self.javascript_origins:
+                rv.append(url_for("api.javascript_endpoint", origin=origin, _external=True))
+        return rv
 
     @property
     def app(self):
@@ -118,15 +128,17 @@ class Client(ndb.Model):
         """Creates a new Client. Don't call this method directly, rather call
         Application.add_client."""
         instance = cls(app_key=app.key, name=utils.strip_control_chars(name),
-                       redirect_uris=_split_lines(redirect_uris), id=id)
+                       own_redirect_uris=_split_lines(redirect_uris), id=id)
         instance.validate()
         instance.client_secret = secret or utils.generate_random_string()
         return instance
 
     def validate(self):
         """Checks that all this Client's properties are valid, raises a ValueError if not."""
-        for uri in self.redirect_uris:
+        for uri in self.own_redirect_uris:
             utils.validate_url(uri, allow_hash=False)
+
+        #TODO validate javascript_origin. see http://codereview.stackexchange.com/questions/82165/validating-javascript-origins
 
 
     @classmethod
@@ -163,6 +175,7 @@ def _load_trusted_clients():
                             id=client_dict["CLIENT_ID"],
                             secret=client_dict["CLIENT_SECRET"])
         client.default_scopes = current_app.config.get("OAUTH_SCOPES").keys()
+        client.javascript_origins = client_dict.get("JAVASCRIPT_ORIGINS")
         TRUSTED_CLIENTS[client_dict["CLIENT_ID"]] = client
     return TRUSTED_CLIENTS
 

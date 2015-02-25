@@ -19,7 +19,6 @@ def access_token():
 @oauth.authorize_handler
 def authorize(*args, **kwargs):
     if request.method == 'GET':
-
         client_id = kwargs.get('client_id')
         client = clients.Client.get_by_id(client_id)
         kwargs['client'] = client
@@ -31,3 +30,7 @@ def authorize(*args, **kwargs):
 
     confirm = request.form.get('confirm', 'no')
     return confirm == 'yes'
+
+@blueprint.api_blueprint.route("/oauth/js")
+def javascript_endpoint():
+    return render_template("oauth_js.html")

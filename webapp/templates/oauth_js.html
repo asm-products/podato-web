@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>js</title>
+</head>
+<body>
+<script>
+    function parseQueryString(s){
+        var pairs = s.split("&")
+        var obj = {};
+        for(var i=0; i<pairs.length; i++){
+            var pair = pairs[i].split("=");
+            obj[pair[0]] = pair[1]
+        }
+        return obj;
+    }
+    var tokeninfo = parseQueryString(location.hash.substr(1));
+    var origin = decodeURIComponent(parseQueryString(location.search.substr(1))["origin"]);
+    window.opener.postMessage(tokeninfo, origin);
+    window.close()
+</script>
+</body>
+</html>

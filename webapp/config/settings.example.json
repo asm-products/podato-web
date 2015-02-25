@@ -2,6 +2,7 @@
     "DEBUG": true,
     "SECRET_KEY": "<SOME_SECRET_KEY>",
     "JSON_AS_ASCII": false,
+    "DOMAIN": "http://localhost:8080",<<<<
 
     "FACEBOOK_CONSUMER_KEY": "<Your facebook app_id>",
     "FACEBOOK_CONSUMER_SECRET": "<your facebook app secret>",
@@ -12,6 +13,10 @@
             "REDIRECT_URLS": [
                 "http://localhost:8080/auth/callback",
                 "https://podato-server.appspot.com/auth/callback"
+            ],
+            "JAVASCRIPT_ORIGINS": [
+                "http://localhost:8080",
+                "https://podato-server.appspot.com"
             ],
             "CLIENT_ID": "af3aeb1f956d81e8da0e0cbadc396115",
             "CLIENT_SECRET": "<some random secret>"

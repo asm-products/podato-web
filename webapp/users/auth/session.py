@@ -38,7 +38,8 @@ def require(f):
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
         if not get_user():
-            if request.args.get("provider"):
+            provider = request.args.get("provider")
+            if provider:
                 return redirect(url_for("auth.provider_login", provider=provider, next=request.url))
             return redirect(url_for("auth.login", next=request.url))
         return f(*args, **kwargs)
