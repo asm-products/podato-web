@@ -8,9 +8,15 @@ from api.oauth.oauth import oauth
 from users import User
 from users.auth import session
 
+
+class AuthorizationRequired(Exception):
+    pass
+
+
 @oauth.clientgetter
 def load_client(client_id):
     return clients.Client.get_by_id(client_id)
+
 
 @oauth.grantgetter
 def load_grant(client_id, code):
@@ -31,6 +37,7 @@ def load_token(access_token=None, refresh_token=None):
     else:
         return tokens.BearerToken.query(tokens.BearerToken.refresh_token == refresh_token).get()
 
+
 @oauth.tokensetter
 def save_token(token, request):
     tokens.BearerToken.create(
@@ -43,12 +50,10 @@ def save_token(token, request):
         token_type=token["token_type"]
     ).put()
 
-@oauth.usergetter
-def get_user(platform, code, *args, **kwargs):
-    user = User.create(username="bob", email="frederikcreemers@gmail.com", avatar_url="http://example.com")
-    user.put()
-    return user
 
+@oauth.invalid_response
+def handle_invalid_response(request):
+    raise AuthorizationRequired()
 import routes
 
 

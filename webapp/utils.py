@@ -47,3 +47,12 @@ class ValidatedModel(object):
     def validate(self):
         """Subclasses should override this."""
         raise NotImplemented("Subclasses of ValidatedModel should override the validate method.")
+
+
+class AttributeHider(object):
+    def __init__(self, obj, hide):
+        self.hide = hide
+        self.obj = obj
+    def __getattr__(self, name):
+        if not name in self.hide:
+            return getattr(self.obj, name)

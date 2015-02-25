@@ -20,8 +20,8 @@ var PodatoAPI = {
     _authData: {},
     _loginCallbackAttached: false,
 
-    authenticate: function(auth_provider){
-        if (this.isAuthenticated()){
+    authenticate: function(auth_provider, force){
+        if (this.isAuthenticated() && !force){
             this.emit("authenticated");
             return;
         }
@@ -62,13 +62,15 @@ var PodatoAPI = {
     },
 
     request: function(options, callback){
+        if(typeof options === "string"){
+            options = {path: options};
+        }
         var xhr = new XMLHttpRequest();
         xhr.responseType = options.responseType || "json";
 
         if(!options.path) throw new APIError("options.path is required for request()");
         var url = this.apiBase + options.path;
-
-        if(!options.method) throw new APIError("options.method is required for request()");
+        options.method = options.method || "GET";
         xhr.open(options.method, url)
 
         var _this = this;
@@ -90,6 +92,12 @@ var PodatoAPI = {
         }else{
             sendRequest();
         }
+    },
+
+    // API methods
+
+    getUser: function(user_id, callback){
+        this.request("/users/"+user_id, callback);
     }
 }
 
