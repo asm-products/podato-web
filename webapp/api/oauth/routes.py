@@ -3,18 +3,19 @@ import logging
 from flask import render_template
 from flask import request
 
-from api import blueprint
+from api.blueprint import api_blueprint
 from api.oauth import oauth
 from api.oauth import clients
 from users.auth import session
 
-@blueprint.api_blueprint.route('/oauth/token')
+
+@api_blueprint.route('/oauth/token')
 @oauth.token_handler
 def access_token():
     pass # We don't need to actually do anything, just attach the handler.
 
 
-@blueprint.api_blueprint.route('/oauth/authorize', methods=['GET', 'POST'])
+@api_blueprint.route('/oauth/authorize', methods=['GET', 'POST'], endpoint="authorize")
 @session.require
 @oauth.authorize_handler
 def authorize(*args, **kwargs):
@@ -31,6 +32,6 @@ def authorize(*args, **kwargs):
     confirm = request.form.get('confirm', 'no')
     return confirm == 'yes'
 
-@blueprint.api_blueprint.route("/oauth/js")
+@api_blueprint.route("/oauth/js")
 def javascript_endpoint():
     return render_template("oauth_js.html")

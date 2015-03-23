@@ -2,7 +2,9 @@
     "DEBUG": true,
     "SECRET_KEY": "<SOME_SECRET_KEY>",
     "JSON_AS_ASCII": false,
-    "DOMAIN": "http://localhost:8080",<<<<
+    "SERVER_NAME": "localhost:8080",
+    "DEFAULT_PROTOCOL": "http",
+    "DOMAIN": "http://localhost:8080",
 
     "FACEBOOK_CONSUMER_KEY": "<Your facebook app_id>",
     "FACEBOOK_CONSUMER_SECRET": "<your facebook app secret>",

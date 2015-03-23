@@ -54,6 +54,7 @@ def save_token(token, request):
 @oauth.invalid_response
 def handle_invalid_response(request):
     raise AuthorizationRequired()
+
 import routes
 
 

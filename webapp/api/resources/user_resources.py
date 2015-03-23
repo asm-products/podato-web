@@ -1,7 +1,7 @@
 from flask import abort
-from flask_restful import Resource
-from flask_restful import marshal_with
-from flask_restful import fields
+from flask_restplus import Resource
+from flask_restplus import marshal_with
+from flask_restplus import fields
 
 from utils import AttributeHider
 from api.oauth import oauth
@@ -15,6 +15,11 @@ user_fields = {
     "email_address": fields.String(attribute="primary_email")
 }
 
+ns = api.namespace("users")
+
+
+@ns.route("/<string:user_id>")
+@api.doc(params={"user_id": "A user ID, or \"me\" without quotes, for the user associated with the provided access token."})
 class UserResource(Resource):
     @marshal_with(user_fields)
     def get(self, user_id):
@@ -34,5 +39,3 @@ class UserResource(Resource):
         if not (valid and (user_id == "me" or user_id == req.user.key.id())):
             return AttributeHider(user, ["primary_email"])
         return user
-
-api.add_resource(UserResource, "/users/<string:user_id>")
