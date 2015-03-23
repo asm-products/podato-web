@@ -34,8 +34,13 @@
     "vinyl-source-stream": "^1.0.0"
   },
   "dependencies": {
+    "ax": "^0.2.2",
     "browsernizr": "^1.0.2",
+    "cookiejar": "^2.0.1",
     "gulp": "^3.8.11",
-    "merge": "^1.2.0"
+    "iconv-lite": "^0.4.7",
+    "merge": "^1.2.0",
+    "sprintf": "^0.1.5",
+    "swagger-client": "bigblind/swagger-js#bf5ded8de2d1c17c107f8821294c897d148c1d17"
   }
 }
