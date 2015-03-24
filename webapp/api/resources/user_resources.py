@@ -18,10 +18,11 @@ user_fields = {
 ns = api.namespace("users")
 
 
-@ns.route("/<string:user_id>")
+@ns.route("/<string:user_id>", endpoint="user")
 @api.doc(params={"user_id": "A user ID, or \"me\" without quotes, for the user associated with the provided access token."})
 class UserResource(Resource):
     @marshal_with(user_fields)
+    @api.doc(id="getUser")
     def get(self, user_id):
         if user_id == "me":
             valid, req = oauth.verify_request(["publicuserinfo/read"])
