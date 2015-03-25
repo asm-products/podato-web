@@ -18,8 +18,9 @@ gulp.task("javascript", function(){
         entries: ['./webapp/static/jssrc/main.js'],
         debug: true
     });
-    bundler.transform("reactify")
+    bundler.transform("reactify", {es6: true});
     bundler.transform("./configloader.js");
+    bundler.transform("es6ify");
 
     var bundle = function() {
         return bundler
@@ -28,7 +29,7 @@ gulp.task("javascript", function(){
           .pipe(buffer())
           .pipe(sourcemaps.init({loadMaps: true}))
           .pipe(uglify())
-          .pipe(sourcemaps.write('./'))
+          .pipe(sourcemaps.write('../js'))
           .pipe(gulp.dest('./webapp/static/js/'));
     };
 

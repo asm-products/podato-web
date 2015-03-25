@@ -36,6 +36,8 @@
   "dependencies": {
     "ax": "^0.2.2",
     "cookiejar": "^2.0.1",
+    "doc-ready": "^1.0.3",
+    "es6ify": "^1.6.0",
     "gulp": "^3.8.11",
     "iconv-lite": "^0.4.7",
     "mcfly": "0.0.10",
