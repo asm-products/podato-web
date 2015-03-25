@@ -22,7 +22,7 @@ ns = api.namespace("users")
 @api.doc(params={"user_id": "A user ID, or \"me\" without quotes, for the user associated with the provided access token."})
 class UserResource(Resource):
     @marshal_with(user_fields)
-    @api.doc(id="getUser")
+    @api.doc(id="getUser", security=[{"javascript":[]}, {"server":[]}])
     def get(self, user_id):
         if user_id == "me":
             valid, req = oauth.verify_request(["publicuserinfo/read"])

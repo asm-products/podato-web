@@ -12,19 +12,19 @@ api = Api(api_blueprint,
           ui=True,
           title="Podato API",
           version=0.1,
-          authorizations=[
-            {
+          authorizations={
+            "javascript":{
               "type":"oauth2",
               "flow":"implicit",
               "authorizationUrl": authorize_url,
               "scopes": current_app.config.get("OAUTH_SCOPES")
             },
-            {
+            "server":{
               "type":"oauth2",
               "flow":"accessCode",
               "scopes":current_app.config.get("OAUTH_SCOPES"),
               "authorizationUrl": authorize_url,
               "tokenUrl": token_url
             }
-          ]
+          }
           )

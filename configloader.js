@@ -14,8 +14,7 @@ module.exports= function(file, opts){
         config: {
             get: function(path){
                 var obj = require("./webapp/config/settings.json");
-                var ret = jsonpath.eval(obj, path);
-                return quote(ret[0])
+                return JSON.stringify(jsonpath.eval(obj, path));
             }
         }
     },{vars: vars});
