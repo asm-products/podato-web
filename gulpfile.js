@@ -18,6 +18,7 @@ gulp.task("javascript", function(){
         entries: ['./webapp/static/jssrc/main.js'],
         debug: true
     });
+    bundler.transform("reactify")
     bundler.transform("./configloader.js");
 
     var bundle = function() {
