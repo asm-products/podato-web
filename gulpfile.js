@@ -35,3 +35,7 @@ gulp.task("javascript", function(){
 
     return bundle();
 });
+
+gulp.task('watch', function() {
+    gulp.watch("webapp/static/jssrc/**/*", ['javascript']);
+})
