@@ -1,5 +1,7 @@
 const React = require("react");
 
+const LoginButton = require("../auth/login-button")
+
 const Home = React.createClass({
     render(){
         return (
@@ -7,9 +9,9 @@ const Home = React.createClass({
             <h1 className="center">Podato</h1>
             <h2 className="center">Enjoy Podcasts Together</h2>
             <p className="center">
-                <a className="button not-rounded m1">Sign in with Facebook</a>
-                <a className="button not-rounded m1">Sign in with Twitter</a>
-                <a className="button not-rounded m1">Sign in with Google</a>
+                <LoginButton authProvider="Facebook" className="m1" />
+                <LoginButton authProvider="Twitter" className="m1" />
+                <LoginButton authProvider="Google" className="m1" />
             </p>
         </div>
         )
