@@ -14,7 +14,7 @@ const CurrentUserStore = mcfly.createStore({
             break;
         case constants.actionTypes.LOGGED_IN:
             loggingIn = false;
-            currentUser = {email:"foo@example.com"}
+            currentUser = data.user;
             break;
         default:
             return
