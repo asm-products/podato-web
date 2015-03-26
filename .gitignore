@@ -62,3 +62,6 @@ webapp/config/settings.json
 # ignore npm deps.
 node_modules
 npm-debug.log
+
+# ignore js builds
+webapp/static/js/**/*
