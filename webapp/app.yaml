@@ -22,6 +22,9 @@ handlers:
 - url: /css
   static_dir: static/css
 
+- url: /img
+  static_dir: static/img
+
 #required for flask_restplus swagger ui.
 - url: /swaggerui/bower
   static_dir: static/bower

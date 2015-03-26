@@ -67,4 +67,4 @@ window.client = client;
 var instance = new API.PodatoAuth();
 client.clientAuthorizations.add("javascript", instance)
 API.login = instance.login.bind(instance);
-module.exports = API;
+module.exports = window.API = API;
