@@ -19,7 +19,7 @@ user_fields = {
 ns = api.namespace("users")
 
 
-@ns.route("/<string:user_id>", endpoint="user")
+@ns.route("/<string:userId>", endpoint="user")
 @api.doc(params={"userId": "A user ID, or \"me\" without quotes, for the user associated with the provided access token."})
 class UserResource(Resource):
     @marshal_with(user_fields)
@@ -38,6 +38,6 @@ class UserResource(Resource):
 
         # make sure the client is authorized to get the user's email.
         valid, req = oauth.verify_request(["userinfo/email"])
-        if not (valid and (user_id == "me" or user_id == req.user.key.id())):
+        if not (valid and (userId == "me" or userId == req.user.key.id())):
             return AttributeHider(user, ["primary_email"])
         return user
