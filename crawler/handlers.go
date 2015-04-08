@@ -1,14 +1,14 @@
 package crawler
 
 import (
-    "net/http"
+	"net/http"
 
 	"appengine"
 	"github.com/davecgh/go-spew/spew"
 )
 
 func init() {
-    http.HandleFunc("/crawler/fetch", handler)
+	http.HandleFunc("/crawler/fetch", handler)
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {

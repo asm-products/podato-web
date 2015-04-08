@@ -1,53 +1,53 @@
 package crawler
 
 import (
-	"time"
+	rss "github.com/jteeuwen/go-pkg-rss"
 	"sort"
 	"strconv"
 	"strings"
-	rss"github.com/jteeuwen/go-pkg-rss"
+	"time"
 )
 
 //Explicitness constants
 const (
 	explUndefined = iota
-	explClean = iota
-	explExplicit = iota
+	explClean     = iota
+	explExplicit  = iota
 )
 
 type Podcast struct {
-	Url string `datastore:"-"`
-	Title string `datastore:"title"`
-	Author string `datastore:"author"`
-	Description string `datastore:"description,noindex"`
-	Language string `datastore:"language"`
-	Copyright string `datastore:"copyright"`
-	Image string `datastore:"image,noindex"`
-	Categories []string `datastore:"categories"`
-	Owner Person `datastore:"owner,noindex"`
-	Episodes []Episode `datastore:"episodes"`
+	Url         string    `datastore:"-"`
+	Title       string    `datastore:"title"`
+	Author      string    `datastore:"author"`
+	Description string    `datastore:"description,noindex"`
+	Language    string    `datastore:"language"`
+	Copyright   string    `datastore:"copyright"`
+	Image       string    `datastore:"image,noindex"`
+	Categories  []string  `datastore:"categories"`
+	Owner       Person    `datastore:"owner,noindex"`
+	Episodes    []Episode `datastore:"episodes"`
 	LastFetched time.Time `datastore:"last_fetched",noindex`
-	MovedTo string `datastore:"moved_to,noindex"`
-	Complete bool `datastore:"complete"`
-	Hub string `datastore:"hub"` //pubsubhubbub hub, for efficient crawling
+	MovedTo     string    `datastore:"moved_to,noindex"`
+	Complete    bool      `datastore:"complete"`
+	Hub         string    `datastore:"hub"` //pubsubhubbub hub, for efficient crawling
 }
 
 type Person struct {
-	Name string `datastore:"name,noindex"`
+	Name  string `datastore:"name,noindex"`
 	Email string `datastore:"email,noindex"`
 }
 
 type Episode struct {
-	Title string `datastore:"title,noindex"`
-	Subtitle string `datastore:"subtitle,noindex"`
-	Description string `datastore:"description,noindex"`
-	Author string `datastore:"author,noindex"`
-	Guid string `datastore:"guid"`
-	Published time.Time `datastore:"published"`
-	Image string `datastore:"image,noindex"`
-	Duration int `datastore:"duration,noindex"`
-	Explicit int8 `datastore:"explicit"`
-	Order int `datastore:"-"`
+	Title       string    `datastore:"title,noindex"`
+	Subtitle    string    `datastore:"subtitle,noindex"`
+	Description string    `datastore:"description,noindex"`
+	Author      string    `datastore:"author,noindex"`
+	Guid        string    `datastore:"guid"`
+	Published   time.Time `datastore:"published"`
+	Image       string    `datastore:"image,noindex"`
+	Duration    int       `datastore:"duration,noindex"`
+	Explicit    int8      `datastore:"explicit"`
+	Order       int       `datastore:"-"`
 }
 
 func (p *Podcast) UpdateFromFeed(f *rss.Feed) {
@@ -86,16 +86,16 @@ func episodeFromItem(e *rss.Item) Episode {
 	o, _ := strconv.ParseInt(safelyGetFirstExtension(getItemItunesExtensions(e)["order"]).Value, 10, 0)
 	order := int(o)
 	return Episode{
-		Title: e.Title,
-		Subtitle: safelyGetFirstExtension(getItemItunesExtensions(e)["subtitle"]).Value,
+		Title:       e.Title,
+		Subtitle:    safelyGetFirstExtension(getItemItunesExtensions(e)["subtitle"]).Value,
 		Description: getEpisodeDescription(e),
-		Author: safelyGetFirstExtension(getItemItunesExtensions(e)["author"]).Value,
-		Guid: e.Key(),
-		Published: pd,
-		Image: getEpisodeImage(e),
-		Duration: getEpisodeDuration(e),
-		Explicit: getEpisodeExplicit(e),
-		Order: order,
+		Author:      safelyGetFirstExtension(getItemItunesExtensions(e)["author"]).Value,
+		Guid:        e.Key(),
+		Published:   pd,
+		Image:       getEpisodeImage(e),
+		Duration:    getEpisodeDuration(e),
+		Explicit:    getEpisodeExplicit(e),
+		Order:       order,
 	}
 }
 
@@ -114,15 +114,15 @@ func (e episodeSorter) Len() int {
 
 func (e episodeSorter) Less(i, j int) bool {
 	e1 := e.episodes[i]
-    e2 := e.episodes[j]
-	if (e1.Order != e2.Order){
+	e2 := e.episodes[j]
+	if e1.Order != e2.Order {
 		return e1.Order < e2.Order
-	}else{
+	} else {
 		return e1.Published.Before(e2.Published)
 	}
 }
 
-func (e episodeSorter) Swap(i, j int){
+func (e episodeSorter) Swap(i, j int) {
 	e.episodes[i], e.episodes[j] = e.episodes[j], e.episodes[i]
 }
 
@@ -134,7 +134,7 @@ func getItemItunesExtensions(i *rss.Item) map[string][]rss.Extension {
 	return i.Extensions["http://www.itunes.com/dtds/podcast-1.0.dtd"]
 }
 
-func safelyGetFirstExtension(es []rss.Extension) rss.Extension{
+func safelyGetFirstExtension(es []rss.Extension) rss.Extension {
 	if len(es) > 0 {
 		return es[0]
 	}
@@ -183,7 +183,7 @@ func getItunesCategories(es map[string][]rss.Extension) []string {
 func getPodcastOwner(c *rss.Channel) Person {
 	owner := safelyGetFirstExtension(getItunesExtensions(c)["owner"])
 	return Person{
-		Name: safelyGetFirstExtension(owner.Childrens["name"]).Value,
+		Name:  safelyGetFirstExtension(owner.Childrens["name"]).Value,
 		Email: safelyGetFirstExtension(owner.Childrens["email"]).Value,
 	}
 }
@@ -204,7 +204,6 @@ func getEpisodeDescription(i *rss.Item) string {
 	}
 	return summary
 }
-
 
 func getEpisodeImage(i *rss.Item) string {
 	return safelyGetFirstExtension(getItemItunesExtensions(i)["image"]).Attrs["href"]
@@ -234,21 +233,13 @@ func getEpisodeDuration(i *rss.Item) int {
 func getEpisodeExplicit(i *rss.Item) int8 {
 	exp := safelyGetFirstExtension(getItemItunesExtensions(i)["explicit"]).Value
 	var e int8
-	switch (exp) {
+	switch exp {
 	case "yes":
-		e = explExplicit;
+		e = explExplicit
 	case "clean":
-		e = explClean;
+		e = explClean
 	default:
-		e = explUndefined;
+		e = explUndefined
 	}
 	return e
 }
-
-
-
-
-
-
-
-

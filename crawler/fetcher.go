@@ -1,31 +1,31 @@
 package crawler
 
 import (
+	"appengine"
 	"appengine/datastore"
 	"appengine/urlfetch"
-	"appengine"
-	rss"github.com/jteeuwen/go-pkg-rss"
 	"github.com/davecgh/go-spew/spew"
+	rss "github.com/jteeuwen/go-pkg-rss"
 )
 
 type NoopHandler bool
 
 func (i *NoopHandler) ProcessItems(f *rss.Feed, c *rss.Channel, itms []*rss.Item) {}
-func (i *NoopHandler) ProcessChannels(f *rss.Feed, c []*rss.Channel) {}
+func (i *NoopHandler) ProcessChannels(f *rss.Feed, c []*rss.Channel)              {}
 
 func fetchFeed(url string, c appengine.Context) *rss.Feed {
 	c.Infof("Fetching: %v", url)
-    ni := new(NoopHandler)
+	ni := new(NoopHandler)
 	client := urlfetch.Client(c)
 	feed := rss.NewWithHandlers(5, true, ni, ni)
 	err := feed.FetchClient(url, client, nil)
 	if err != nil {
 		panic(err)
 	}
-	return 	feed
+	return feed
 }
 
-func updatePodcast(p *Podcast, c appengine.Context){
+func updatePodcast(p *Podcast, c appengine.Context) {
 	f := fetchFeed(p.Url, c)
 	p.UpdateFromFeed(f)
 }
@@ -47,7 +47,7 @@ func updatePodcastsByUrl(urls []string, c appengine.Context) []*Podcast {
 		if p == nil {
 			*p = Podcast{}
 		}
-		if p.Url == ""{
+		if p.Url == "" {
 			p.Url = urls[i]
 		}
 		go func() {
@@ -60,7 +60,7 @@ func updatePodcastsByUrl(urls []string, c appengine.Context) []*Podcast {
 	}
 
 	for j := 0; j < n; j++ {
-		c.Infof("done %v", <-progress	)
+		c.Infof("done %v", <-progress)
 	}
 
 	_, err := datastore.PutMulti(c, keys, podcasts)
