@@ -63,6 +63,11 @@ func updatePodcastsByUrl(urls []string, c appengine.Context) []*Podcast {
 		c.Infof("done %v", <-progress	)
 	}
 
-	datastore.PutMulti(c, keys, podcasts)
+	_, err := datastore.PutMulti(c, keys, podcasts)
+
+	if err != nil {
+		c.Errorf("%v", err)
+	}
+
 	return podcasts
 }

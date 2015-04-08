@@ -4,6 +4,7 @@ import (
 	"time"
 	"sort"
 	"strconv"
+	"strings"
 	rss"github.com/jteeuwen/go-pkg-rss"
 )
 
@@ -41,7 +42,6 @@ type Episode struct {
 	Subtitle string `datastore:"subtitle,noindex"`
 	Description string `datastore:"description,noindex"`
 	Author string `datastore:"author,noindex"`
-	Categories []string `datastore:"categories"`
 	Guid string `datastore:"guid"`
 	Published time.Time `datastore:"published"`
 	Image string `datastore:"image,noindex"`
@@ -90,10 +90,10 @@ func episodeFromItem(e *rss.Item) Episode {
 		Subtitle: safelyGetFirstExtension(getItemItunesExtensions(e)["subtitle"]).Value,
 		Description: getEpisodeDescription(e),
 		Author: safelyGetFirstExtension(getItemItunesExtensions(e)["author"]).Value,
-		Categories: getEpisodeCategories(e),
 		Guid: e.Key(),
 		Published: pd,
 		Image: getEpisodeImage(e),
+		Duration: getEpisodeDuration(e),
 		Explicit: getEpisodeExplicit(e),
 		Order: order,
 	}
@@ -205,13 +205,30 @@ func getEpisodeDescription(i *rss.Item) string {
 	return summary
 }
 
-func getEpisodeCategories(i *rss.Item) []string {
-	cs := getItunesCategories(getItemItunesExtensions(i))
-	return append(cs, categoriesToStrings(i.Categories)...)
-}
 
 func getEpisodeImage(i *rss.Item) string {
 	return safelyGetFirstExtension(getItemItunesExtensions(i)["image"]).Attrs["href"]
+}
+
+func getEpisodeDuration(i *rss.Item) int {
+	strDur := safelyGetFirstExtension(getItemItunesExtensions(i)["duration"]).Value
+	parts := strings.Split(strDur, ":")
+	var hrs, mins, secs int64
+	if len(parts) == 0 {
+		return 0
+	} else if len(parts) == 1 {
+		secs, _ = strconv.ParseInt(parts[0], 10, 0)
+	} else if len(parts) == 2 {
+		mins, _ = strconv.ParseInt(parts[0], 10, 0)
+		secs, _ = strconv.ParseInt(parts[1], 10, 0)
+	} else {
+		l := len(parts)
+		secs, _ = strconv.ParseInt(parts[l-1], 10, 0)
+		mins, _ = strconv.ParseInt(parts[l-2], 10, 0)
+		hrs, _ = strconv.ParseInt(parts[l-3], 10, 0)
+	}
+
+	return int(secs + 60*mins + 3600*hrs)
 }
 
 func getEpisodeExplicit(i *rss.Item) int8 {
