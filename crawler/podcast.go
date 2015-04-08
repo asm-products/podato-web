@@ -3,7 +3,15 @@ package crawler
 import (
 	"time"
 	"sort"
+	"strconv"
 	rss"github.com/jteeuwen/go-pkg-rss"
+)
+
+//Explicitness constants
+const (
+	explUndefined = iota
+	explClean = iota
+	explExplicit = iota
 )
 
 type Podcast struct {
@@ -38,21 +46,19 @@ type Episode struct {
 	Published time.Time `datastore:"published"`
 	Image string `datastore:"image,noindex"`
 	Duration int `datastore:"duration,noindex"`
-	Explicit bool `datastore:"explicit"`
-	Likes int32 `datastore:"likes,noindex"`
-	Dislikes int32 `datastore:"dislikes,noindex"`
-	Views int32 `datastore:"views"`
+	Explicit int8 `datastore:"explicit"`
 	Order int `datastore:"-"`
 }
 
 func (p *Podcast) UpdateFromFeed(f *rss.Feed) {
 	p.Url = f.Url
-	p.UpdateFromChannel(p.Channels[0])
+	p.UpdateFromChannel(f.Channels[0])
 }
 
 func (p *Podcast) UpdateFromChannel(c *rss.Channel) {
+	complete, _ := strconv.ParseBool(safelyGetFirstExtension(getItunesExtensions(c)["complete"]).Value)
 	p.Title = c.Title
-	p.Author = getItunesExtensions(c)["author"][0].Value
+	p.Author = safelyGetFirstExtension(getItunesExtensions(c)["author"]).Value
 	p.Description = getPodcastDescription(c)
 	p.Language = c.Language
 	p.Copyright = c.Copyright
@@ -60,60 +66,63 @@ func (p *Podcast) UpdateFromChannel(c *rss.Channel) {
 	p.Categories = getPodcastCategories(c)
 	p.Owner = getPodcastOwner(c)
 	p.LastFetched = time.Now()
-	p.MovedTo = getItunesExtentions(c)["new-feed-url"][0].Value
-	p.Complete = getItunesExtensions(c)["complete"][0].Value
+	p.MovedTo = safelyGetFirstExtension(getItunesExtensions(c)["new-feed-url"]).Value
+	p.Complete = complete
 	p.Hub = getPodcastHub(c)
-	p.Episodes = episodesFromEntries(c.Entries)
+	p.Episodes = episodesFromItems(c.Items)
 }
 
-func episodesFromItems(items []*rss.Item) []*Episode {
-	episodes := make([]*Episode, len(entries))
+func episodesFromItems(items []*rss.Item) []Episode {
+	episodes := make([]Episode, len(items))
 	for i, e := range items {
 		episodes[i] = episodeFromItem(e)
 	}
-	sortEpisodes(&episodes)
+	sortEpisodes(episodes)
 	return episodes
 }
 
-func episodeFromItem(e *rss.Item){
+func episodeFromItem(e *rss.Item) Episode {
+	pd, _ := e.ParsedPubDate()
+	o, _ := strconv.ParseInt(safelyGetFirstExtension(getItemItunesExtensions(e)["order"]).Value, 10, 0)
+	order := int(o)
 	return Episode{
 		Title: e.Title,
-		Subtitle: getItemItunesExtensions(e)["subtitle"][0].Value,
+		Subtitle: safelyGetFirstExtension(getItemItunesExtensions(e)["subtitle"]).Value,
 		Description: getEpisodeDescription(e),
-		Author: getItemItunesExtensions(e)["author"][0].Value,
+		Author: safelyGetFirstExtension(getItemItunesExtensions(e)["author"]).Value,
 		Categories: getEpisodeCategories(e),
 		Guid: e.Key(),
-		Published: e.ParsedPubDate(),
+		Published: pd,
 		Image: getEpisodeImage(e),
 		Explicit: getEpisodeExplicit(e),
-		Order: getItemItunesExtensions(e)["order"][0].Value
+		Order: order,
 	}
 }
 
-func sortEpisodes(eps *[]*Episode) {
-	es := episodesorter{eps}
+func sortEpisodes(eps []Episode) {
+	es := episodeSorter{eps}
 	sort.Sort(es)
 }
 
 type episodeSorter struct {
-	episodes *[]*Episode
+	episodes []Episode
 }
 
-func (e *episodeSorter) Len() int {
+func (e episodeSorter) Len() int {
 	return len(e.episodes)
 }
 
-func (e *episodeSorter) Less(i, j int) bool {
+func (e episodeSorter) Less(i, j int) bool {
 	e1 := e.episodes[i]
     e2 := e.episodes[j]
 	if (e1.Order != e2.Order){
 		return e1.Order < e2.Order
 	}else{
-		return e1.Published < e2.Published
+		return e1.Published.Before(e2.Published)
 	}
 }
 
-func (e *episodeSorter) Swap(i, j int){
+func (e episodeSorter) Swap(i, j int){
 	e.episodes[i], e.episodes[j] = e.episodes[j], e.episodes[i]
 }
 
@@ -122,11 +131,18 @@ func getItunesExtensions(c *rss.Channel) map[string][]rss.Extension {
 }
 
 func getItemItunesExtensions(i *rss.Item) map[string][]rss.Extension {
-	return c.Extensions["http://www.itunes.com/dtds/podcast-1.0.dtd"]
+	return i.Extensions["http://www.itunes.com/dtds/podcast-1.0.dtd"]
+}
+
+func safelyGetFirstExtension(es []rss.Extension) rss.Extension{
+	if len(es) > 0 {
+		return es[0]
+	}
+	return rss.Extension{}
 }
 
 func getPodcastDescription(c *rss.Channel) string {
-	itunes := getItunesExtensions(c)["summary"][0].Value
+	itunes := safelyGetFirstExtension(getItunesExtensions(c)["summary"]).Value
 	if itunes != "" {
 		return itunes
 	}
@@ -134,7 +150,7 @@ func getPodcastDescription(c *rss.Channel) string {
 }
 
 func getPodcastImage(c *rss.Channel) string {
-	itunes := getItunesExtensions(c)["image"][0].Attrs["href"]
+	itunes := safelyGetFirstExtension(getItunesExtensions(c)["image"]).Attrs["href"]
 	if itunes != "" {
 		return itunes
 	}
@@ -143,7 +159,7 @@ func getPodcastImage(c *rss.Channel) string {
 
 func getPodcastCategories(c *rss.Channel) []string {
 	cs := getItunesCategories(getItunesExtensions(c))
-	return append(cs, ...categoriesToStrings(c.Categories))
+	return append(cs, categoriesToStrings(c.Categories)...)
 }
 
 func categoriesToStrings(cs []*rss.Category) []string {
@@ -157,6 +173,7 @@ func categoriesToStrings(cs []*rss.Category) []string {
 func getItunesCategories(es map[string][]rss.Extension) []string {
 	cats := es["category"]
 	s := make([]string, len(cats))
+
 	for i, c := range cats {
 		s[i] = c.Attrs["text"]
 	}
@@ -164,11 +181,10 @@ func getItunesCategories(es map[string][]rss.Extension) []string {
 }
 
 func getPodcastOwner(c *rss.Channel) Person {
-	itunes := getItunesExtensions(c)["image"][0].Attrs["href"]
-	owner := itunes["owner"]
+	owner := safelyGetFirstExtension(getItunesExtensions(c)["owner"])
 	return Person{
-		Name: owner.Childrens["name"]
-		Email: owner.Childrens["email"]
+		Name: safelyGetFirstExtension(owner.Childrens["name"]).Value,
+		Email: safelyGetFirstExtension(owner.Childrens["email"]).Value,
 	}
 }
 
@@ -178,40 +194,38 @@ func getPodcastHub(c *rss.Channel) string {
 			return l.Href
 		}
 	}
-	return nil
+	return ""
 }
 
 func getEpisodeDescription(i *rss.Item) string {
-	summary := getItemItunesExtensions(i)["summary"][0]
-	if summary == nil {
-		summary = item.Description
+	summary := safelyGetFirstExtension(getItemItunesExtensions(i)["summary"]).Value
+	if summary == "" {
+		summary = i.Description
 	}
 	return summary
 }
 
-func getEpisodeCategories(i *rss.Item) string {
+func getEpisodeCategories(i *rss.Item) []string {
 	cs := getItunesCategories(getItemItunesExtensions(i))
-	return append(cs, ...categoriesToStrings(i.Categories))
+	return append(cs, categoriesToStrings(i.Categories)...)
 }
 
 func getEpisodeImage(i *rss.Item) string {
-	itunes := getItemItunesExtensions(i)["image"][0].Attrs["href"]
-	if itunes != "" {
-		return itunes
-	}
-	return c.Image.Url
+	return safelyGetFirstExtension(getItemItunesExtensions(i)["image"]).Attrs["href"]
 }
 
-func getEpisodeExplicit(i *rss.Item) bool {
-	exp := getItemItunesExtensions(i)["explicit"][0].Value
-	switch (exp) exp {
+func getEpisodeExplicit(i *rss.Item) int8 {
+	exp := safelyGetFirstExtension(getItemItunesExtensions(i)["explicit"]).Value
+	var e int8
+	switch (exp) {
 	case "yes":
-		return true
+		e = explExplicit;
 	case "clean":
-		return false
+		e = explClean;
 	default:
-		return nil
+		e = explUndefined;
 	}
+	return e
 }
 
 
