@@ -1,1 +1,1 @@
-__author__ = 'frederikcreemers'
+from podcasts.models import *

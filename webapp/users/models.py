@@ -3,10 +3,11 @@ import md5
 from google.appengine.ext import ndb
 
 from users import auth
+from podcasts import SubscriptionHolder
 from model_utils import IDMixin
 import utils
 
-class User(ndb.Model, auth.ProviderTokenHolder, IDMixin):
+class User(ndb.Model, auth.ProviderTokenHolder, SubscriptionHolder, IDMixin):
     username = ndb.StringProperty(required=True)
     primary_email = ndb.StringProperty(required=True)
     email_addresses = ndb.StringProperty(repeated=True)
