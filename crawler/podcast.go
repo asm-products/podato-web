@@ -68,7 +68,6 @@ func (p *Podcast) UpdateFromChannel(c *rss.Channel) {
 	p.LastFetched = time.Now()
 	p.MovedTo = safelyGetFirstExtension(getItunesExtensions(c)["new-feed-url"]).Value
 	p.Complete = complete
-	p.Hub = getPodcastHub(c)
 	p.Episodes = episodesFromItems(c.Items)
 }
 
@@ -186,15 +185,6 @@ func getPodcastOwner(c *rss.Channel) Person {
 		Name:  safelyGetFirstExtension(owner.Childrens["name"]).Value,
 		Email: safelyGetFirstExtension(owner.Childrens["email"]).Value,
 	}
-}
-
-func getPodcastHub(c *rss.Channel) string {
-	for _, l := range c.Links {
-		if l.Rel == "hub" {
-			return l.Href
-		}
-	}
-	return ""
 }
 
 func getEpisodeDescription(i *rss.Item) string {
