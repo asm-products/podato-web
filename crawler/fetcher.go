@@ -30,26 +30,11 @@ func updatePodcast(p *Podcast, c appengine.Context) {
 	p.UpdateFromFeed(f)
 }
 
-func updatePodcastsByUrl(urls []string, c appengine.Context) []*Podcast {
-	n := len(urls)
-	keys := make([]*datastore.Key, n)
-	podcasts := make([]*Podcast, n)
+func updatePodcasts(podcasts []*Podcast, c appengine.Context) {
+	n := len(podcasts)
 	progress := make(chan int, n)
 
-	for i, url := range urls {
-		keys[i] = datastore.NewKey(c, "Podcast", url, 0, nil)
-		podcasts[i] = new(Podcast)
-	}
-
-	datastore.GetMulti(c, keys, podcasts)
-
 	for i, p := range podcasts {
-		if p == nil {
-			*p = Podcast{}
-		}
-		if p.Url == "" {
-			p.Url = urls[i]
-		}
 		go func() {
 			updatePodcast(p, c)
 			c.Infof("updated %v", i)
@@ -62,12 +47,21 @@ func updatePodcastsByUrl(urls []string, c appengine.Context) []*Podcast {
 	for j := 0; j < n; j++ {
 		c.Infof("done %v", <-progress)
 	}
+}
 
-	_, err := datastore.PutMulti(c, keys, podcasts)
+func createOrUpdatePodcastByUrl(url string, c appengine.Context) (*Podcast, error) {
+	p := new(Podcast)
+	p.Url = url
 
-	if err != nil {
-		c.Errorf("%v", err)
+	key := datastore.NewKey(c, "Podcast", url, 0, nil)
+	err := datastore.Get(c, key, p)
+	if err != nil && err != datastore.ErrNoSuchEntity {
+		return nil, err
 	}
 
-	return podcasts
+	updatePodcasts([]*Podcast{p}, c)
+
+	_, err = datastore.Put(c, key, p)
+
+	return p, err
 }

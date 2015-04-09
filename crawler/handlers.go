@@ -14,7 +14,10 @@ func init() {
 func handler(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
 	c := appengine.NewContext(r)
-	podcast := updatePodcastsByUrl([]string{r.Form.Get("url")}, c)[0]
+	podcast, err := createOrUpdatePodcastByUrl(r.Form.Get("url"), c)
+	if err != nil {
+		c.Errorf("%v", err)
+	}
 
 	spew.Fdump(w, podcast)
 	w.Write([]byte("done"))
