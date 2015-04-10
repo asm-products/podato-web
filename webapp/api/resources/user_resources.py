@@ -1,28 +1,21 @@
-from flask import abort
+from flask import abort, request
 from flask_restplus import Resource
-from flask_restplus import marshal_with
 from flask_restplus import fields
 
 from utils import AttributeHider
 from api.oauth import oauth
 from api.oauth import AuthorizationRequired
 from api.blueprint import api
+from api.models import user_fields, subscribe_fields, podcast_fields, success_status
 from users import User
 
-user_fields = {
-    "username": fields.String,
-    "avatar_url": fields.String,
-    "email_address": fields.String(attribute="primary_email"),
-    "id": fields.String
-}
 
 ns = api.namespace("users")
-
 
 @ns.route("/<string:userId>", endpoint="user")
 @api.doc(params={"userId": "A user ID, or \"me\" without quotes, for the user associated with the provided access token."})
 class UserResource(Resource):
-    @marshal_with(user_fields)
+    @api.marshal_with(user_fields)
     @api.doc(id="getUser", security=[{"javascript":[]}, {"server":[]}])
     def get(self, userId):
         if userId == "me":
@@ -41,3 +34,32 @@ class UserResource(Resource):
         if not (valid and (userId == "me" or userId == req.user.key.id())):
             return AttributeHider(user, ["primary_email"])
         return user
+
+
+@ns.route("/<string:userId>/subscriptions", endpoint="subscriptions")
+@api.doc({"userId": "A user ID, or \"me\" without quotes, for the user associated with the provided access token.", "podcast":"a podcast feed url."})
+class SubscriptionResource(Resource):
+    @api.marshal_with(success_status)
+    @api.doc(id="subscribe", security=[{"javascript":[]}, {"server":[]}])
+    @api.expect(subscribe_fields)
+    def post(self, userId):
+        podcast = request.json.get("podcast")
+        if userId == "me":
+            valid, req = oauth.verify_request([])
+            if not valid:
+                raise AuthorizationRequired()
+            user = req.user
+            result = user.subscribe_by_url(podcast)
+            if result:
+                user.put()
+            return {"success": result}
+
+    @api.marshal_with(podcast_fields, as_list=True)
+    @api.doc(id="getSubscriptions", security=[{"javascript":[]}, {"server":[]}])
+    def get(self, userId):
+        if userId == "me":
+            valid, req = oauth.verify_request([])
+            if not valid:
+                raise AuthorizationRequired()
+            user = req.user
+            return user.get_subscriptions()

@@ -1,7 +1,7 @@
 from google.appengine.ext import ndb
 
 from model_utils import IDMixin
-
+from podcasts import crawler
 
 class Person(ndb.Model):
     name = ndb.StringProperty()
@@ -20,7 +20,7 @@ class Episode(ndb.Model):
     explicit = ndb.IntegerProperty()
 
 
-class Podcast(ndb.Model, IDMixin)
+class Podcast(ndb.Model, IDMixin):
     title = ndb.StringProperty(indexed=False)
     author = ndb.StringProperty()
     description = ndb.TextProperty()
@@ -38,15 +38,27 @@ class Podcast(ndb.Model, IDMixin)
 class SubscriptionHolder(object):
     subscriptions = ndb.KeyProperty(Podcast, repeated=True)
 
-    def subscribe(self, podcast):
-        if podcast.key in self.subscriptions:
+    def subscribe(self, key):
+        if isinstance(key, Podcast):
+            key = key.key
+        if key in self.subscriptions:
             return False
-        self.subscriptions.append(podcast.key)
+        self.subscriptions.append(key)
         return True
 
-    def unsubscribe(self, podcast):
+    def subscribe_by_url(self, url):
+        podcast = Podcast.get_by_id(url, use_cache=False, use_memcache=False)
+        if podcast == None:
+            crawler.fetch(url)
+            return self.subscribe_by_url(url)
+        return self.subscribe(podcast.key)
+
+    def unsubscribe(self, key):
+        if isinstance(key, Podcast):
+            key = key.key
+
         try:
-            self.subscriptions.remove(podcast.key)
+            self.subscriptions.remove(key)
             return True
         except ValueError:
             return False
