@@ -1,1 +1,2 @@
 import api.resources.user_resources
+import api.resources.podcast_resources

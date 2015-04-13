@@ -42,6 +42,13 @@ class Podcast(ndb.Model, IDMixin):
     complete = ndb.BooleanProperty()
     episodes = ndb.StructuredProperty(Episode, repeated=True)
 
+    @classmethod
+    def get_by_url(cls, url, **kwargs):
+        podcast = cls.get_by_id(url, **kwargs)
+        if podcast and podcast.moved_to:
+            return cls.get_by_url(url, **kwargs)
+        return podcast
+
 
 class SubscriptionHolder(object):
     subscriptions = ndb.KeyProperty(Podcast, repeated=True)
@@ -55,7 +62,7 @@ class SubscriptionHolder(object):
         return True
 
     def subscribe_by_url(self, url):
-        podcast = Podcast.get_by_id(url, use_cache=False, use_memcache=False)
+        podcast = Podcast.get_by_url(url, use_cache=False, use_memcache=False)
         if podcast == None:
             crawler.fetch(url)
             return self.subscribe_by_url(url)
