@@ -17,6 +17,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	podcast, err := createOrUpdatePodcastByUrl(r.Form.Get("url"), c)
 	if err != nil {
 		c.Errorf("%v", err)
+		http.Error(w, err.Error(), 500)
+		return
 	}
 
 	spew.Fdump(w, podcast)
