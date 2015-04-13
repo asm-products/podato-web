@@ -37,6 +37,12 @@ type Person struct {
 	Email string `datastore:"email,noindex"`
 }
 
+type Enclosure struct {
+	Url string `datastore:"url,noindex"`
+	Type string `datastore:"type"`
+	Length int64 `datastore:"length,noindex"`
+}
+
 type Episode struct {
 	Title       string    `datastore:"title,noindex"`
 	Subtitle    string    `datastore:"subtitle,noindex"`
@@ -47,6 +53,7 @@ type Episode struct {
 	Image       string    `datastore:"image,noindex"`
 	Duration    int       `datastore:"duration,noindex"`
 	Explicit    int8      `datastore:"explicit"`
+	Enclosure	Enclosure
 	Order       int       `datastore:"-"`
 }
 
@@ -94,6 +101,7 @@ func episodeFromItem(e *rss.Item) Episode {
 		Image:       getEpisodeImage(e),
 		Duration:    getEpisodeDuration(e),
 		Explicit:    getEpisodeExplicit(e),
+		Enclosure:	 getEpisodeEnclosure(e),
 		Order:       order,
 	}
 }
@@ -232,4 +240,12 @@ func getEpisodeExplicit(i *rss.Item) int8 {
 		e = explUndefined
 	}
 	return e
+}
+
+func getEpisodeEnclosure(i *rss.Item) Enclosure{
+	if len(i.Enclosures) == 0 {
+		return Enclosure{}
+	}
+	enc := i.Enclosures[0]
+	return Enclosure{enc.Url, enc.Type, enc.Length}
 }
