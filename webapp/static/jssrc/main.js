@@ -16,7 +16,7 @@ api.addListener("ready", function(){
 
 var routes = (
     <Route name="app" path="/" handler={App}>
-        <DefaultRoute name="home" handler={Home} />
+        <DefaultRoute name="home" handler={Home}/>
     </Route>
 )
 
