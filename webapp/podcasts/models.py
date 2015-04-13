@@ -3,9 +3,16 @@ from google.appengine.ext import ndb
 from model_utils import IDMixin
 from podcasts import crawler
 
+
 class Person(ndb.Model):
     name = ndb.StringProperty()
     email = ndb.StringProperty()
+
+
+class Enclosure(ndb.Model):
+    url = ndb.StringProperty(indexed=False)
+    length = ndb.IntegerProperty(indexed=False)
+    type = ndb.StringProperty(indexed=False)
 
 
 class Episode(ndb.Model):
@@ -18,6 +25,7 @@ class Episode(ndb.Model):
     image = ndb.StringProperty(indexed=False)
     duration = ndb.IntegerProperty(indexed=False)
     explicit = ndb.IntegerProperty()
+    enclosure = ndb.StructuredProperty(Enclosure)
 
 
 class Podcast(ndb.Model, IDMixin):
