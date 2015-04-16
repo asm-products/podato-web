@@ -1,6 +1,6 @@
 const React = require("react");
 
-const LoginButton = require("../auth/login-button")
+const LoginButton = require("../auth/login-button.jsx")
 const CurrentUserStore = require("../../stores/current-user-store");
 
 const Home = React.createClass({

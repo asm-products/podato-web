@@ -1,6 +1,6 @@
 const React = require("react");
 const RouteHandler = require("react-router").RouteHandler;
-const Navbar = require("./navbar/navbar.js");
+const Navbar = require("./navbar/navbar.jsx");
 
 
 const App = React.createClass({

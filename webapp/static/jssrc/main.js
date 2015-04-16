@@ -6,17 +6,19 @@ const Router = require("react-router");
 const Route = Router.Route;
 const DefaultRoute = Router.DefaultRoute;
 
-const App = require("./components/app.js");
-const Home = require("./components/pages/home.js");
+const App = require("./components/app.jsx");
+const Home = require("./components/pages/home.jsx");
+const Podcast = require("./components/pages/podcast.jsx");
 
-api.addListener("ready", function(){
+api.loaded.then(() =>{
     console.log("api loaded");
     console.log(api);
 })
 
 var routes = (
     <Route name="app" path="/" handler={App}>
-        <DefaultRoute name="home" handler={Home}/>
+        <DefaultRoute name="home" handler={Home} />
+        <Route name="podcast" path="podcasts/*" handler={Podcast} />
     </Route>
 )
 

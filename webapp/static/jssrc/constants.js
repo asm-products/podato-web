@@ -1,7 +1,10 @@
+const km = require('keymirror')
+
 module.exports = {
-    actionTypes: {
-        LOGGED_IN: "logged_in",
-        LOGGED_OUT: "logged_out",
-        LOGGING_IN: "logging_in"
-    }
+    actionTypes: km({
+        LOGGED_IN:null,
+        LOGGED_OUT:null,
+        LOGGING_IN:null,
+        PODCAST_FETCHED:null
+    })
 }

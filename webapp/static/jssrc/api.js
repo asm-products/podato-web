@@ -1,17 +1,17 @@
 var swagger = require("swagger-client");
 var config = require("config");
-var merge = require("merge");
-var EventEmitter = require("events").EventEmitter;
 var utils = require("./utils");
+var merge = require("merge");
 
-var API = new EventEmitter();
-
-var client = new swagger({
-    url: config.get("DOMAIN")[0] + "/api/swagger.json",
-    success: function(){
-        API = merge(API, client.apis);
-        API.emit("ready");
-    }
+var API = {}, client;
+API.loaded = new Promise(function(resolve, reject){
+    client = new swagger({
+        url: config.get("DOMAIN")[0] + "/api/swagger.json",
+        success: function(){
+            merge(API, client.apis);
+            resolve();
+        }
+    });
 });
 
 API.PodatoAuth = function(){
