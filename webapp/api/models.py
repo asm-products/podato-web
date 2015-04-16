@@ -44,6 +44,7 @@ class Explicit(fields.Raw):
         return ["undefined", "clean", "explicit"][value]
 
 episode_fields = api.extend("episode", podcast_fields, {
+    "subtitle": fields.String,
     "duration": Duration,
     "summary": fields.String,
     "explicit": Explicit,
