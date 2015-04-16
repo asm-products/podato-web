@@ -2,8 +2,9 @@ var swagger = require("swagger-client");
 var config = require("config");
 var utils = require("./utils");
 var merge = require("merge");
+var EventEmitter = require("events").EventEmitter;
 
-var API = {}, client;
+var API = new EventEmitter(), client;
 API.loaded = new Promise(function(resolve, reject){
     client = new swagger({
         url: config.get("DOMAIN")[0] + "/api/swagger.json",
