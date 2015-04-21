@@ -19,12 +19,12 @@ const SubscribeButton = React.createClass({
         var className = "button " + (this.props.className || "");
         if(!this.state.subscribed){
             return (
-                <a className={className} onClick={this.subscribe} >Subscribe</a>
+                <button disabled="true" className={className} onClick={this.subscribe} disabled={this.state.disabled}>Subscribe</button>
             )
         }
-        className = "button bg-darken-2"
+        className = "button bg-darken-2" + (this.props.className || "");
         return (
-            <a className={className} onClick={this.unsubscribe}>Unsubscribe</a>
+            <button className={className} onClick={this.unsubscribe} disabled={this.state.disabled}>Unsubscribe</button>
         )
 
     },
@@ -33,25 +33,31 @@ const SubscribeButton = React.createClass({
             user: CurrentUserStore.getCurrentUser(),
             subscriptions: SubscriptionsStore.getSubscriptions("me"),
             fetching: SubscriptionsStore.isFetchingSubscriptions("me"),
-            subscribed: SubscriptionsStore.isSubscribedTo("me", this.props.podcast)
+            subscribed: SubscriptionsStore.isSubscribedTo("me", this.props.podcast),
         }
     },
     getInitialState(){
-        return this.makeState()
+        return this.makeState();
     },
     subscribe(e){
         e.preventDefault();
         PodcastsActions.subscribe(this.props.podcast);
+        this.setState({disabled: true})
     },
     unsubscribe(e){
         e.preventDefault();
         PodcastsActions.unsubscribe(this.props.podcast);
+        this.setState({disabled: true})
     },
     componentWillMount(){
         PodcastsActions.fetchSubscriptions("me");
     },
     storeDidChange(){
-        this.setState(this.makeState());
+        var newState = this.makeState();
+        if(newState.subscribed !== this.state.subscribed){
+            newState.disabled=false;
+        }
+        this.setState(newState);
     }
 });
 
