@@ -7,21 +7,31 @@ const AuthActions = mcfly.createActions({
         return new Promise((resolve, reject) => {
             api.login(authProvider);
             AuthActions.loggingIn();
-            var listener = () => {
-                api.users.getUser({userId: "me"}, function(resp){
-                    resolve({
-                        actionType: constants.actionTypes.LOGGED_IN,
-                        user: resp.obj
-                    });
-                });
-                api.removeListener("authenticated", listener);
-            }
-            api.addListener("authenticated", listener);
         });
     },
     loggingIn(){
         return {actionType: constants.actionTypes.LOGGING_IN}
+    },
+    loggedIn(user){
+        return {
+            actionType: constants.actionTypes.LOGGED_IN,
+            user: user
+        };
     }
 });
+
+var authListener = () => {
+    AuthActions.loggingIn();
+    api.loaded.then(() => {
+        api.users.getUser({userId: "me"}, function(resp){
+            AuthActions.loggedIn(resp.obj)
+        });
+    });
+};
+
+api.addListener("authenticated", authListener);
+if(api.isLoggedIn()){
+    authListener();
+}
 
 module.exports = AuthActions;

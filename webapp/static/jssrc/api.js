@@ -16,10 +16,14 @@ API.loaded = new Promise(function(resolve, reject){
 });
 
 API.PodatoAuth = function(){
-    this.authData = {};
+    this.authData = JSON.parse(localStorage.getItem("authData")) || {};
     this.client = {
         client_id: config.get("TRUSTED_CLIENTS[0].CLIENT_ID")[0],
         scopes: Object.keys(config.get("OAUTH_SCOPES")[0]).join(" ")
+    }
+    if (this.isAuthenticated()){
+        console.log("Detected existing session");
+        API.emit("authenticated");
     }
 }
 
@@ -45,18 +49,17 @@ API.PodatoAuth.prototype.login = function(authProvider){
 
 API.PodatoAuth.prototype.onMessage = function(event){
     if (event.origin === config.get("DOMAIN")[0]){
-        console.log("authenticated: ");
-        console.log(event);
         if(event.data.access_token){
             this.authData = event.data;
             this.authData.expires = new Date().getTime() + this.authData.expires_in*1000;
+            localStorage.setItem("authData", JSON.stringify(this.authData))
             API.emit("authenticated");
         }
     }
 }
 
 API.PodatoAuth.prototype.isAuthenticated = function(){
-    return this.authData.access_token && this._authData.expires > new Date().getTime();
+    return this.authData.access_token && this.authData.expires > new Date().getTime();
 }
 
 API.PodatoAuth.prototype.apply = function(req){
@@ -68,4 +71,5 @@ window.client = client;
 var instance = new API.PodatoAuth();
 client.clientAuthorizations.add("javascript", instance)
 API.login = instance.login.bind(instance);
+API.isLoggedIn = instance.isAuthenticated.bind(instance);
 module.exports = window.API = API;
