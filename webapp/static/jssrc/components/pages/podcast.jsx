@@ -1,5 +1,7 @@
 const React = require("react");
 
+const SubscribeButton  = require("../podcasts/subscribe-button.jsx");
+
 const CurrentUserStore = require("../../stores/current-user-store");
 const PodcastsStore = require("../../stores/podcasts-store");
 
@@ -33,6 +35,7 @@ const Podcast = React.createClass({
                     <div className="sm-col sm-col-1 md-col-3 p1">
                         <img src={this.state.podcast.image} />
                         <p>by {this.state.podcast.author}</p>
+                        <p><SubscribeButton podcast={this.state.podcast.id} /></p>
                     </div>
                     <div className="sm-col sm-col-11 md-col-9 clearfix">
                         <div className="sm-col sm-col-12 p1">

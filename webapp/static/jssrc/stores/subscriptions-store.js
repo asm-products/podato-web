@@ -6,7 +6,12 @@ var fetching = []
 
 const SubscriptionsStore = mcfly.createStore({
     getSubscriptions(userId){return subscriptions[userId]},
-    isFetchingSubscriptions(userId){return (fetching.indexOf(userId) >= 0)}
+    isFetchingSubscriptions(userId){return (fetching.indexOf(userId) >= 0)},
+    isSubscribedTo(userId, podcast){
+        return (subscriptions[userId] && subscriptions[userId].filter((p) => {
+            return p.id == podcast
+        }).length > 0)
+    }
 }, function(data){
     switch(data.actionType){
         case constants.actionTypes.SUBSCRIPTIONS_FETCHED:
@@ -17,6 +22,9 @@ const SubscriptionsStore = mcfly.createStore({
             break;
         case constants.actionTypes.FETCHING_SUBSCRIPTIONS:
             fetching.push(data.userId);
+            console.log("Received fetching event:");
+            console.log(data);
+            break;
         default:
             return
     }

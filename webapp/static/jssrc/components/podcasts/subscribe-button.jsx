@@ -5,19 +5,19 @@ const CurrentUserStore = require("../../stores/current-user-store");
 const SubscriptionsStore = require("../../stores/subscriptions-store");
 const Spinner = require("../common/spinner.jsx");
 
-const LoginButton = React.createClass({
-    mixins: [CurrentUserStore.mixin, SubscriptionsStore.mixin]
+const SubscribeButton = React.createClass({
+    mixins: [CurrentUserStore.mixin, SubscriptionsStore.mixin],
     render(){
-        if(!this.state.user) return;
+        if(!this.state.user) return (<span>Log in to subscribe.</span>);
         if(!this.state.subscriptions){
             if(this.state.fetching){
-                return "<Spinner></Spinner>"
+                return (<Spinner></Spinner>);
             }
-            return;
+            return (<span>Something went wrong while trying to fetch your subscriptions..</span>);
         }
 
         var className = "button " + (this.props.className || "");
-        if(!subscribed){
+        if(!this.state.subscribed){
             return (
                 <a className={className} onClick={this.subscribe} >Subscribe</a>
             )
@@ -31,14 +31,14 @@ const LoginButton = React.createClass({
     makeState(){
         return {
             user: CurrentUserStore.getCurrentUser(),
-            subscriptions: SubscriptiosStore.getSubscriptions("me"),
+            subscriptions: SubscriptionsStore.getSubscriptions("me"),
             fetching: SubscriptionsStore.isFetchingSubscriptions("me"),
             subscribed: SubscriptionsStore.isSubscribedTo("me", this.props.podcast)
         }
     },
     getInitialState(){
         return this.makeState()
-    }
+    },
     subscribe(e){
         e.preventDefault();
         PodcastsActions.subscribe(this.props.podcast);
@@ -47,9 +47,12 @@ const LoginButton = React.createClass({
         e.preventDefault();
         PodcastsActions.unsubscribe(this.props.podcast);
     },
+    componentWillMount(){
+        PodcastsActions.fetchSubscriptions("me");
+    },
     storeDidChange(){
         this.setState(this.makeState());
     }
 });
 
-module.exports = LoginButton;
+module.exports = SubscribeButton;
