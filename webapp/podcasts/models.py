@@ -78,5 +78,9 @@ class SubscriptionHolder(object):
         except ValueError:
             return False
 
+    def unsubscribe_by_url(self, url):
+        key = ndb.Key(Podcast, url)
+        return self.unsubscribe(key)
+
     def get_subscriptions(self):
         return ndb.get_multi(self.subscriptions)
