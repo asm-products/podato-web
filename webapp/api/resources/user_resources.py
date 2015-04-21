@@ -43,19 +43,19 @@ podcastsParser.add_argument(name="podcast", action="append", required=True, loca
 @api.doc({"userId": "A user ID, or \"me\" without quotes, for the user associated with the provided access token.", "podcast":"a podcast feed url."})
 class SubscriptionResource(Resource):
     @api.marshal_with(success_status)
-    @api.doc(id="subscribe", security=[{"javascript":[]}, {"server":[]}])
-    @api.expect(subscribe_fields)
+    @api.doc(id="subscribe", security=[{"javascript":[]}, {"server":[]}], parser=podcastsParser)
     def post(self, userId):
-        podcast = request.json.get("podcast")
+        podcasts = podcastsParser.parse_args()["podcast"]
         if userId == "me":
             valid, req = oauth.verify_request([])
             if not valid:
                 raise AuthorizationRequired()
             user = req.user
-            result = user.subscribe_by_url(podcast)
-            if result:
-                user.put()
-            return {"success": result}
+            for podcast in podcasts:
+                user.subscribe_by_url(podcast)
+
+            user.put()
+            return {"success": True}
 
     @api.marshal_with(success_status)
     @api.doc(id="unsubscribe", parser=podcastsParser)
