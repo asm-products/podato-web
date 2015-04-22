@@ -3,13 +3,42 @@ const api = require("../api");
 const constants = require("../constants");
 
 const PodcastsActions = mcfly.createActions({
+    subscribe(podcastIds){
+        return new Promise((resolve, reject) => {
+            api.loaded.then(() => {
+                api.users.subscribe({userId: "me", podcast:podcastIds}, (resp) => {
+                    if(resp.status !== 200){
+                        reject(resp.statusText);
+                        return
+                    }
+                    resolve({
+                        actionType: constants.actionTypes.SUBSCRIBED,
+                        podcasts: podcastIds
+                    })
+                });
+            });
+        });
+    },
+    unsubscribe(podcastIds){
+        return new Promise((resolve, reject) => {
+            api.loaded.then(() => {
+                api.users.unsubscribe({userId: "me", podcast: podcastIds}, (resp) => {
+                    if(resp.status !== 200){
+                        reject(resp.statusText);
+                        return
+                    }
+                    resolve({
+                        actionType: constants.actionTypes.UNSIBSCRIBED,
+                        podcasts: podcastIds
+                    });
+                });
+            });
+        });
+    },
     fetchPodcast(podcastId){
-        console.log("fetchPodcast action called.");
         return new Promise((resolve, reject) => {
             api.loaded.then(() => {
                 api.podcasts.getPodcast({podcastId: podcastId}, (resp) => {
-                    console.log("getpodcast response for " + podcastId);
-                    console.log(resp);
                     if(resp.status !== 200){
                         reject(resp.statusText);
                         return
