@@ -41,12 +41,12 @@ const SubscribeButton = React.createClass({
     },
     subscribe(e){
         e.preventDefault();
-        PodcastsActions.subscribe(this.props.podcast);
+        PodcastsActions.subscribe([this.props.podcast]);
         this.setState({disabled: true})
     },
     unsubscribe(e){
         e.preventDefault();
-        PodcastsActions.unsubscribe(this.props.podcast);
+        PodcastsActions.unsubscribe([this.props.podcast]);
         this.setState({disabled: true})
     },
     componentWillMount(){
