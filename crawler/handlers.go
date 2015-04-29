@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"appengine"
-	"github.com/davecgh/go-spew/spew"
 )
 
 func init() {
@@ -21,6 +20,5 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	spew.Fdump(w, podcast)
 	w.Write([]byte("done"))
 }
