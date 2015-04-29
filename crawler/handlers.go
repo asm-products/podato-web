@@ -20,5 +20,5 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte("done"))
+	w.Write([]byte(podcast.Url))
 }
