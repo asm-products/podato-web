@@ -4,7 +4,6 @@ import (
 	"appengine"
 	"appengine/datastore"
 	"appengine/urlfetch"
-	"github.com/davecgh/go-spew/spew"
 	rss "github.com/jteeuwen/go-pkg-rss"
 )
 
@@ -41,7 +40,6 @@ func updatePodcasts(podcasts []*Podcast, c appengine.Context) appengine.MultiErr
 			errors[i] = updatePodcast(p, c)
 			c.Infof("updated %v", i)
 			progress <- i
-			c.Infof("%v", spew.Sdump(p))
 		}()
 
 	}
