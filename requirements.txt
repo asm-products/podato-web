@@ -1,0 +1,16 @@
+aniso8601
+blinker
+flask
+flask-restful
+flask-restplus
+flask-oauthlib
+httplib2
+jwt
+markupsafe
+oauth2client
+pytz
+uritemplate
+werkzeug
+itsdangerous
+six
+uwsgi

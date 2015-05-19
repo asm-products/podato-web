@@ -1,4 +1,3 @@
-import modify_pythonpath
 import flask
 import flask_restful
 
