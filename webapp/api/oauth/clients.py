@@ -77,7 +77,7 @@ class Application(Model):
         client.delete()
 
 
-class Client(db.Document):
+class Client(Model):
     """A client that has credentials to communicate with us."""
     app = db.ReferenceField(Application, required=True, reverse_delete_rule=db.CASCADEA)
     name = db.StringField(required=True)

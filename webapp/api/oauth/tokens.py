@@ -1,13 +1,13 @@
 import datetime
 
-from db import db
+from db import db, Model
 from users import User
 from clients import Client
 
 import utils
 
 
-class GrantToken(db.Document):
+class GrantToken(Model):
     """Grant token, to be exchanged for a BearerToken."""
 
     client_id = db.StringField(required=True)
@@ -41,7 +41,7 @@ class GrantToken(db.Document):
         return cls.get_by_id(cls.make_id(client_id, code))
 
 
-class BearerToken(db.Document):
+class BearerToken(Model):
     """Token that clients can use to access resources."""
     refresh_token = db.StringField()
     client = db.ReferenceField(Client, reverse_delete_rule=db.CASCADE)

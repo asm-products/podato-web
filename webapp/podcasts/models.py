@@ -1,46 +1,46 @@
-from google.appengine.ext import ndb
-
+from db import db, Model
 from model_utils import IDMixin
 from podcasts import crawler
 
 
-class Person(ndb.Model):
-    name = ndb.StringProperty()
-    email = ndb.StringProperty()
+class Person(db.EmbeddedDocument):
+    name = db.StringField()
+    email = db.EmailField()
 
 
-class Enclosure(ndb.Model):
-    url = ndb.StringProperty(indexed=False)
-    length = ndb.IntegerProperty(indexed=False)
-    type = ndb.StringProperty(indexed=False)
+class Enclosure(db.EmbeddedDocument):
+    url = db.URLField()
+    length = db.IntegerField()
+    type = db.StringField()
 
 
-class Episode(ndb.Model):
-    title = ndb.StringProperty(indexed=False)
-    subtitle = ndb.StringProperty(indexed=False)
-    description = ndb.TextProperty()
-    author = ndb.StringProperty(indexed=False)
-    guid = ndb.StringProperty()
-    published = ndb.DateTimeProperty()
-    image = ndb.StringProperty(indexed=False)
-    duration = ndb.IntegerProperty(indexed=False)
-    explicit = ndb.IntegerProperty()
-    enclosure = ndb.StructuredProperty(Enclosure)
+class Episode(db.EmbeddedDocument):
+    title = db.StringField(required=True)
+    subtitle = db.StringField()
+    description = db.StringField()
+    author = db.StringField()
+    guid = db.StringField(required=True)
+    published = db.DateTimeField(required=True)
+    image = db.URLField()
+    duration = db.IntegerField()
+    explicit = db.IntegerField()
+    enclosure = db.EmbeddedDocumentField(Enclosure, required=True)
 
 
-class Podcast(ndb.Model, IDMixin):
-    title = ndb.StringProperty(indexed=False)
-    author = ndb.StringProperty()
-    description = ndb.TextProperty()
-    language = ndb.StringProperty()
-    copyright = ndb.StringProperty(indexed=False)
-    image = ndb.StringProperty(indexed=False)
-    categories = ndb.StringProperty(repeated=True)
-    owner = ndb.StructuredProperty(Person, indexed=False)
-    last_fetched = ndb.DateTimeProperty()
-    moved_to = ndb.StringProperty(indexed=False)
-    complete = ndb.BooleanProperty()
-    episodes = ndb.StructuredProperty(Episode, repeated=True)
+class Podcast(Model):
+    url = db.URLField(primary_key=True)
+    title = db.StringField(required=True)
+    author = db.StringField(required=True)
+    description = db.StringField()
+    language = db.StringField()
+    copyright = db.StringField()
+    image = db.StringField()
+    categories = db.ListField(db.StringField)
+    owner = db.EmbeddedDocumentField(Person)
+    last_fetched = db.DateTimeField()
+    moved_to = db.URLField()
+    complete = db.BooleanField()
+    episodes = db.ListField(db.EmbeddedField(Episode))
 
     @classmethod
     def get_by_url(cls, url, **kwargs):
@@ -51,14 +51,12 @@ class Podcast(ndb.Model, IDMixin):
 
 
 class SubscriptionHolder(object):
-    subscriptions = ndb.KeyProperty(Podcast, repeated=True)
+    subscriptions = db.ListField(db.ReferenceField(Podcast, reverse_delete_rule=db.PULL))
 
-    def subscribe(self, key):
-        if isinstance(key, Podcast):
-            key = key.key
-        if key in self.subscriptions:
+    def subscribe(self, podcast):
+        if podcast in self.subscriptions:
             return False
-        self.subscriptions.append(key)
+        self.modify(push__subscriptions=podcast)
         return True
 
     def subscribe_by_url(self, url):
@@ -66,21 +64,11 @@ class SubscriptionHolder(object):
         if podcast == None:
             crawler.fetch(url)
             return self.subscribe_by_url(url)
-        return self.subscribe(podcast.key)
+        return self.subscribe(podcast)
 
-    def unsubscribe(self, key):
-        if isinstance(key, Podcast):
-            key = key.key
-
-        try:
-            self.subscriptions.remove(key)
-            return True
-        except ValueError:
-            return False
+    def unsubscribe(self, podcast):
+        return self.modify(pull_subscriptions=podcast)
 
     def unsubscribe_by_url(self, url):
-        key = ndb.Key(Podcast, url)
-        return self.unsubscribe(key)
-
-    def get_subscriptions(self):
-        return ndb.get_multi(self.subscriptions)
+        podcast = Podcast.get_by_url
+        return self.unsubscribe(podcast)
