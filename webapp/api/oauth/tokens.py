@@ -1,27 +1,28 @@
 import datetime
 
-from google.appengine.ext import ndb
+from db import db
+from users import User
+from clients import Client
 
 import utils
 
 
-class GrantToken(ndb.Model):
+class GrantToken(db.Document):
     """Grant token, to be exchanged for a BearerToken."""
-    _use_datastore = False # only store in cache.
 
-    client_id = ndb.StringProperty(required=True)
-    user = ndb.KeyProperty(required=True)
-    redirect_uri = ndb.StringProperty(required=True)
-    scopes = ndb.StringProperty(repeated=True)
-    expires = ndb.DateTimeProperty(required=True)
-    code = ndb.StringProperty(required=True)
+    client_id = db.StringField(required=True)
+    user = db.ReferenceField(User, required=True)
+    redirect_uri = db.URLField(required=True)
+    scopes = db.ListField(db.StringField())
+    expires = db.DateTimeField(required=True)
+    code = db.StringField(required=True)
 
     @classmethod
     def create(cls, client_id, code, user, redirect_uri, scopes):
         expires = datetime.datetime.utcnow() + datetime.timedelta(seconds=120)
         instance = cls(
             client_id=client_id,
-            user=user.key,
+            user=user,
             redirect_uri=redirect_uri,
             scopes=scopes,
             expires=expires,
@@ -40,26 +41,22 @@ class GrantToken(ndb.Model):
         return cls.get_by_id(cls.make_id(client_id, code))
 
 
-class BearerToken(ndb.Model):
+class BearerToken(db.Document):
     """Token that clients can use to access resources."""
-    refresh_token = ndb.StringProperty()
-    client_key = ndb.KeyProperty(required=True)
-    user_key = ndb.KeyProperty(required=True)
-    scopes = ndb.StringProperty(repeated=True)
-    expires = ndb.DateTimeProperty(required=True)
-    token_type = ndb.StringProperty(required=True)
+    refresh_token = db.StringField()
+    client = db.ReferenceField(Client, reverse_delete_rule=db.CASCADE)
+    user = db..ReferenceField(User, reverse_delete_rule=db.CASCADE, required=True)
+    scopes = db.ListField(db.StringField())
+    expires = db.DateTimeField(required=True)
+    token_type = db.StringProperty(required=True)
 
     @property
     def client_id(self):
-        return self.client_key.id()
+        return self.client.id
 
     @property
     def access_token(self):
-        return self.key.id()
-
-    @property
-    def user(self):
-        return self.user_key.get()
+        return self.id
 
     @classmethod
     def create(cls, access_token, refresh_token, client, user, expires_in,
@@ -83,6 +80,3 @@ class BearerToken(ndb.Model):
                    token_type=token_type,
                    scopes=scopes,
                    expires=expires)
-
-    def delete(self):
-        self.key.delete()

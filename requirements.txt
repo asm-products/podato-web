@@ -14,4 +14,5 @@ werkzeug
 itsdangerous
 six
 uwsgi
+pymongo==2.8
 flask-mongoengine

@@ -17,6 +17,12 @@ class Model(db.Document):
     def get_by_id(cls, id):
         return cls.objects.get(id)
 
+    @property
+    def query(self):
+        """The 'objects' property has the same function the 'query property has
+           in App Engine's ndb module, so this makes porting easier."""
+        return self.objects
+
 
 class IDMixin(object):
     """DEPRECATED This class is no longer necessary."""""

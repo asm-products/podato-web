@@ -1,7 +1,6 @@
 import logging
 
-from google.appengine.ext import ndb
-from google.appengine.api import mail
+from db import db, Model
 
 from flask import current_app
 from flask import url_for
@@ -21,18 +20,18 @@ def _split_lines(t):
     lines = map(strip, t.split('\n'))
 
 
-class Application(ndb.Model, utils.ValidatedModel):
+class Application(Model):
     """An application that would like to integrate with us.
     One application can have multiple clients."""
+    name = db.StringField(primary_key=True)
+    logo_url = db.URLField()
+    contact_email = db.EmailField()
+    homepage_url = db.URLField()
+    privacy_policy_url = db.URLField()
+    trusted = db.BooleanField(default=False)
 
-    logo_url = ndb.StringProperty()
-    contact_email = ndb.StringProperty()
-    homepage_url = ndb.StringProperty()
-    privacy_policy_url = ndb.StringProperty()
-    trusted = ndb.BooleanProperty(default=False)
-
-    clients = ndb.KeyProperty(kind="Client", repeated=True)
-    owners = ndb.KeyProperty(kind="User", repeated=True)
+    clients = db.ListField(db.ReferenceField("Client", reverse_delete_rule=db.PULL))
+    owners = db.ListField(db.ReferenceField("User", reverse_delete_rule=db.PULL))
 
     @classmethod
     def create(cls, name, owner, logo_url=None, contact_email=None, homepage_url=None,
@@ -47,7 +46,7 @@ class Application(ndb.Model, utils.ValidatedModel):
           - homepage_url: the url of the application's homepage
           - privacy_policy_url: the url of the application's privacy policy."""
         instance = cls(
-            id=utils.strip_control_chars(name),
+            name=utils.strip_control_chars(name),
             logo_url=logo_url,
             contact_email=contact_email,
             homepage_url=homepage_url,
@@ -57,38 +56,38 @@ class Application(ndb.Model, utils.ValidatedModel):
         if owner:
             instance.owners.append(owner)
 
-        instance.validate()
         return instance
 
+    def add_owner(self, owner):
+        self.modify(push__owners=owner)
 
-    def validate(self):
-        """Checks that all of this applicatio's properties are valid, raises a ValueError if not."""
-        if self.logo_url:
-            utils.validate_url(self.logo_url, allow_hash=False)
-        if self.homepage_url:
-            utils.validate_url(self.homepage_url, allow_hash=True)
-        if self.contact_email:
-            utils.validate_email(self.contact_email)
+    def remove_owner(self, owner):
+        self.modify(pull__owners=owner)
 
     def add_client(self, *args, **kwargs):
         """Adds a new client for this application."""
         client = Client.create(app, *args, **kwargs)
-        client.put()
-        self.clients.append[client.key]
+        client.save()
+        self.modify(push__clients=client)
         return client
 
+    def remove_client(self, client):
+        """Removes the client from the application, and deletes it."""
+        self.modify(pull__clients=client)
+        client.delete()
 
-class Client(ndb.Model, utils.ValidatedModel):
+
+class Client(db.Document):
     """A client that has credentials to communicate with us."""
-    app_key = ndb.KeyProperty(Application, required=True)
-    name = ndb.StringProperty(required=True)
+    app = db.ReferenceField(Application, required=True, reverse_delete_rule=db.CASCADEA)
+    name = db.StringField(required=True)
 
-    is_confidential = ndb.BooleanProperty(default=True)
-    client_secret = ndb.StringProperty(required=True)
+    is_confidential = db.BooleanField(default=True)
+    client_secret = db.StringField(required=True)
 
-    own_redirect_uris = ndb.StringProperty(repeated=True)
-    javascript_origins = ndb.StringProperty(repeated=True)
-    default_scopes = ndb.StringProperty(repeated=True)
+    own_redirect_uris = db.ListField(db.URLField())
+    javascript_origins = db.ListField(db.URLField())
+    default_scopes = db.ListField(db.StringField())
 
     @property
     def redirect_uris(self):
@@ -99,10 +98,6 @@ class Client(ndb.Model, utils.ValidatedModel):
         return rv
 
     @property
-    def app(self):
-        return self.app_key.get()
-
-    @property
     def client_type(self):
         if self.is_confidential:
             return 'confidential'
@@ -110,7 +105,7 @@ class Client(ndb.Model, utils.ValidatedModel):
 
     @property
     def client_id(self):
-        return self.key.string_id()
+        return self.id
 
     @property
     def default_redirect_uri(self):
@@ -127,18 +122,11 @@ class Client(ndb.Model, utils.ValidatedModel):
     def create(cls, app, name, redirect_uris, id=None, secret=None):
         """Creates a new Client. Don't call this method directly, rather call
         Application.add_client."""
-        instance = cls(app_key=app.key, name=utils.strip_control_chars(name),
+        instance = cls(app=app, name=utils.strip_control_chars(name),
                        own_redirect_uris=_split_lines(redirect_uris), id=id)
         instance.validate()
         instance.client_secret = secret or utils.generate_random_string()
         return instance
-
-    def validate(self):
-        """Checks that all this Client's properties are valid, raises a ValueError if not."""
-        for uri in self.own_redirect_uris:
-            utils.validate_url(uri, allow_hash=False)
-
-        #TODO validate javascript_origin. see http://codereview.stackexchange.com/questions/82165/validating-javascript-origins
 
 
     @classmethod
