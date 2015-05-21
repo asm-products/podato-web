@@ -1,6 +1,6 @@
-from flask.ext.mongoalchemy import MongoAlchemy
+from flask.ext.mongoengine import MongoEngine
 
-db = MongoAlchemy()
+db = MongoEngine()
 
 def init_db(app):
     db.init_app(app)
@@ -15,7 +15,7 @@ class Model(db.Document):
 
     @classmethod
     def get_by_id(cls, id):
-        return cls.query.get(id)
+        return cls.objects.get(id)
 
 
 class IDMixin(object):
