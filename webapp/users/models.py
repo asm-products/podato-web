@@ -1,11 +1,10 @@
 import md5
 
-from db import db, Model
+from webapp.db import db, Model
 
-from users import auth
-from podcasts import SubscriptionHolder
-from model_utils import IDMixin
-import utils
+from webapp.users import auth
+from webapp.podcasts import SubscriptionHolder
+from webapp import utils
 
 class User(Model, auth.ProviderTokenHolder, SubscriptionHolder):
     username = db.StringField(required=True)

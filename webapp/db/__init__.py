@@ -1,5 +1,6 @@
 from flask.ext.mongoengine import MongoEngine
 
+
 db = MongoEngine()
 
 def init_db(app):
@@ -7,6 +8,8 @@ def init_db(app):
 
 
 class Model(db.Document):
+    meta = {'abstract': True}
+
     def put(self, *args, **kwargs):
         self.save(*args, **kwargs)
 
@@ -15,7 +18,44 @@ class Model(db.Document):
 
     @classmethod
     def get_by_id(cls, id):
-        return cls.objects.get(id)
+        return cls.objects.with_id(id)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     @property
     def query(self):

@@ -1,9 +1,9 @@
 import logging
 
 from flask import abort
-from db import db
+from webapp.db import db
 
-from users.auth import facebook_api
+from webapp.users.auth import facebook_api
 
 class ProvidedIdentity(db.EmbeddedDocument):
     provider = db.StringField(required=True)

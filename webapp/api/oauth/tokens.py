@@ -1,10 +1,10 @@
 import datetime
 
-from db import db, Model
-from users import User
+from webapp.db import db, Model
+from webapp.users import User
 from clients import Client
 
-import utils
+from webapp import utils
 
 
 class GrantToken(Model):
@@ -45,10 +45,10 @@ class BearerToken(Model):
     """Token that clients can use to access resources."""
     refresh_token = db.StringField()
     client = db.ReferenceField(Client, reverse_delete_rule=db.CASCADE)
-    user = db..ReferenceField(User, reverse_delete_rule=db.CASCADE, required=True)
+    user = db.ReferenceField(User, reverse_delete_rule=db.CASCADE, required=True)
     scopes = db.ListField(db.StringField())
     expires = db.DateTimeField(required=True)
-    token_type = db.StringProperty(required=True)
+    token_type = db.StringField(required=True)
 
     @property
     def client_id(self):

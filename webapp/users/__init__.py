@@ -1,3 +1,3 @@
-from users.auth import routes
-from users.models import User
-from users.blueprint import users_blueprint
+from webapp.users.auth import routes
+from webapp.users.models import User
+from webapp.users.blueprint import users_blueprint

@@ -3,12 +3,12 @@ from flask_restplus import Resource
 from flask_restplus import fields
 from flask_restplus import abort
 
-from utils import AttributeHider
-from api.oauth import oauth
-from api.oauth import AuthorizationRequired
-from api.blueprint import api
-from api.models import user_fields, subscribe_fields, podcast_fields, success_status
-from users import User
+from webapp.utils import AttributeHider
+from webapp.api.oauth import oauth
+from webapp.api.oauth import AuthorizationRequired
+from webapp.api.blueprint import api
+from webapp.api.models import user_fields, subscribe_fields, podcast_fields, success_status
+from webapp.users import User
 
 
 ns = api.namespace("users")

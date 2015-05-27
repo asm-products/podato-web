@@ -1,6 +1,5 @@
-from db import db, Model
-from model_utils import IDMixin
-from podcasts import crawler
+from webapp.db import db, Model
+from webapp.podcasts import crawler
 
 
 class Person(db.EmbeddedDocument):
@@ -10,7 +9,7 @@ class Person(db.EmbeddedDocument):
 
 class Enclosure(db.EmbeddedDocument):
     url = db.URLField()
-    length = db.IntegerField()
+    length = db.IntField()
     type = db.StringField()
 
 
@@ -22,13 +21,12 @@ class Episode(db.EmbeddedDocument):
     guid = db.StringField(required=True)
     published = db.DateTimeField(required=True)
     image = db.URLField()
-    duration = db.IntegerField()
-    explicit = db.IntegerField()
+    duration = db.IntField()
+    explicit = db.IntField()
     enclosure = db.EmbeddedDocumentField(Enclosure, required=True)
 
 
 class Podcast(Model):
-    url = db.URLField(primary_key=True)
     title = db.StringField(required=True)
     author = db.StringField(required=True)
     description = db.StringField()
@@ -40,7 +38,7 @@ class Podcast(Model):
     last_fetched = db.DateTimeField()
     moved_to = db.URLField()
     complete = db.BooleanField()
-    episodes = db.ListField(db.EmbeddedField(Episode))
+    episodes = db.EmbeddedDocumentListField(Episode)
 
     @classmethod
     def get_by_url(cls, url, **kwargs):

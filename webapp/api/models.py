@@ -1,4 +1,4 @@
-from api.blueprint import api
+from webapp.api.blueprint import api
 from flask_restplus import fields
 
 id_field = api.model("id", {

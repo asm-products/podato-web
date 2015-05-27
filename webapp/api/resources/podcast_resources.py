@@ -5,12 +5,12 @@ from flask_restplus import Resource
 from flask_restplus import fields
 from flask_restplus import abort
 
-from utils import AttributeHider
-from api.oauth import oauth
-from api.oauth import AuthorizationRequired
-from api.blueprint import api
-from api.models import podcast_full_fields
-from podcasts import Podcast
+from webapp.utils import AttributeHider
+from webapp.api.oauth import oauth
+from webapp.api.oauth import AuthorizationRequired
+from webapp.api.blueprint import api
+from webapp.api.models import podcast_full_fields
+from webapp.podcasts import Podcast
 
 
 ns = api.namespace("podcasts")

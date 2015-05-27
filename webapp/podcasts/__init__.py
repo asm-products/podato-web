@@ -1,1 +1,1 @@
-from podcasts.models import *
+from webapp.podcasts.models import *

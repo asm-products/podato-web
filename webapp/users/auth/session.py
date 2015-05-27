@@ -5,9 +5,9 @@ from flask import url_for
 from flask import redirect
 from flask import request
 
-import cache
+import webapp.cache
 
-from users.models import User
+from webapp.users.models import User
 import errors
 
 

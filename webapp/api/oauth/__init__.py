@@ -1,12 +1,12 @@
 from flask import current_app
 from flask_oauthlib.provider import OAuth2Provider
 
-from api.oauth import clients
-from api.oauth import tokens
-from api.oauth.oauth import oauth
+from webapp.api.oauth import clients
+from webapp.api.oauth import tokens
+from webapp.api.oauth.oauth import oauth
 
-from users import User
-from users.auth import session
+from webapp.users import User
+from webapp.users.auth import session
 
 
 class AuthorizationRequired(Exception):
