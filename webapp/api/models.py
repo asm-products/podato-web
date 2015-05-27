@@ -43,6 +43,12 @@ class Explicit(fields.Raw):
     def format(self, value):
         return ["undefined", "clean", "explicit"][value]
 
+enclosure_fields = api.model("enclosure", {
+        "length": fields.Integer,
+        "type": fields.String,
+        "url": fields.String
+})
+
 episode_fields = api.extend("episode", podcast_fields, {
     "subtitle": fields.String,
     "duration": Duration,
@@ -51,11 +57,7 @@ episode_fields = api.extend("episode", podcast_fields, {
     "summary": fields.String,
     "guid": fields.String,
     "published": fields.DateTime,
-    "enclosure": fields.Nested({
-        "length": fields.Integer,
-        "type": fields.String,
-        "url": fields.String
-    })
+    "enclosure": fields.Nested(enclosure_fields)
 })
 
 podcast_full_fields = api.extend("podcast_full", podcast_fields, {
