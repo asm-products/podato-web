@@ -1,4 +1,12 @@
 const api = require("./api.js");
+
+var apiRoot = void(0)
+if(location.hostname === "localhost"){
+    apiRoot = location.origin;
+}
+api.load(apiRoot);
+
+
 const docReady = require("doc-ready");
 
 const React = require("react");
@@ -9,6 +17,7 @@ const DefaultRoute = Router.DefaultRoute;
 const App = require("./components/app.jsx");
 const Home = require("./components/pages/home.jsx");
 const Podcast = require("./components/pages/podcast.jsx");
+
 
 api.loaded.then(() =>{
     console.log("api loaded");
