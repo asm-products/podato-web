@@ -5,7 +5,7 @@ from flask import url_for
 from flask import redirect
 from flask import request
 
-import webapp.cache
+from webapp import cache
 
 from webapp.users.models import User
 import errors
@@ -13,8 +13,8 @@ import errors
 
 def create_session_token(user):
     token = os.urandom(16).encode("hex")
-    cache.set("session-" + token, user.key.id(), 600)
-    session["user_id"] = user.key.id()
+    cache.set("session-" + token, str(user.id), 600)
+    session["user_id"] = str(user.id)
     session["token"] = token
 
 

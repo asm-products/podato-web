@@ -143,7 +143,7 @@ class Client(Model):
         """Gets the Client with the given id."""
         # Overriding this to return trusted clients.
         logging.debug("Retrieving client with id %s (trusted: %s)" % (id, id in TRUSTED_CLIENTS))
-        return TRUSTED_CLIENTS.get(id) or objects.first(client_id=id)
+        return TRUSTED_CLIENTS.get(id) or cls.objects(client_id=id).first()
 
 
 def _load_trusted_clients():

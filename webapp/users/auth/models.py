@@ -43,7 +43,7 @@ class ProviderTokenHolder(object):
     @classmethod
     def get_by_provided_identity(cls, provider, user_id):
         """Gets the User associated with the given provided identity."""
-        return cls.query(provided_identities__provider=provider, provided_identities__user_id=user_id).first()
+        return cls.objects(provided_identities__provider=provider, provided_identities__user_id=user_id).first()
 
     @classmethod
     def login(cls, provider, provider_response):

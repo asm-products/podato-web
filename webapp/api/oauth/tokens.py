@@ -43,20 +43,17 @@ class GrantToken(Model):
 
 class BearerToken(Model):
     """Token that clients can use to access resources."""
+    access_token = db.StringField(required=True, unique=True)
     refresh_token = db.StringField()
-    client = db.ReferenceField(Client, reverse_delete_rule=db.CASCADE)
+    client_id = db.StringField(required=True)
     user = db.ReferenceField(User, reverse_delete_rule=db.CASCADE, required=True)
     scopes = db.ListField(db.StringField())
     expires = db.DateTimeField(required=True)
     token_type = db.StringField(required=True)
 
     @property
-    def client_id(self):
-        return self.client.id
-
-    @property
-    def access_token(self):
-        return self.id
+    def client(self):
+        return Client.get_by_id(self.client_id)
 
     @classmethod
     def create(cls, access_token, refresh_token, client, user, expires_in,
@@ -73,10 +70,10 @@ class BearerToken(Model):
          - scopes: a list of scopes.
          """
         expires = datetime.datetime.utcnow() + datetime.timedelta(seconds=expires_in)
-        return cls(id=access_token,
+        return cls(access_token=access_token,
                    refresh_token=refresh_token,
-                   client_key=client.key,
-                   user_key=user.key,
+                   client_id=str(client.id),
+                   user=user,
                    token_type=token_type,
                    scopes=scopes,
                    expires=expires)

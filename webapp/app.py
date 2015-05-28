@@ -1,4 +1,5 @@
 import db
+import cache
 import flask
 import flask_restful
 
@@ -7,6 +8,7 @@ from config import settings
 app = flask.Flask(__name__)
 app.config.from_object(settings)
 db.init_db(app)
+cache.init_cache(app)
 
 with app.app_context():
     from users import users_blueprint

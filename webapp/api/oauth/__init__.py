@@ -33,9 +33,9 @@ def save_grant(client_id, code, request, *args, **kwargs):
 @oauth.tokengetter
 def load_token(access_token=None, refresh_token=None):
     if access_token:
-        return tokens.BearerToken.get_by_id(access_token)
+        return tokens.BearerToken.objects(access_token=access_token).first()
     else:
-        return tokens.BearerToken.query(tokens.BearerToken.refresh_token == refresh_token).get()
+        return tokens.BearerToken.objects(refresh_token=refresh_token).first()
 
 
 @oauth.tokensetter

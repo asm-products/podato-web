@@ -1,13 +1,14 @@
 import os
 import urlparse
 
+
 from flask import request
 from flask import url_for
 from flask import redirect
 from flask import render_template
 from flask import abort
 
-import webapp.cache
+from webapp import cache
 from webapp.users.blueprint import  users_blueprint
 from webapp.users import models
 from webapp.users.auth.providers import get_provider
