@@ -17,3 +17,4 @@ uwsgi
 pymongo==2.8
 flask-mongoengine
 redis
+feedparser

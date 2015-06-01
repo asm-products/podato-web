@@ -1,6 +1,4 @@
 from webapp.db import db, Model
-from webapp.podcasts import crawler
-
 
 class Person(db.EmbeddedDocument):
     name = db.StringField()
@@ -27,13 +25,14 @@ class Episode(db.EmbeddedDocument):
 
 
 class Podcast(Model):
+    url = db.StringField(required=True, unique=True)
     title = db.StringField(required=True)
     author = db.StringField(required=True)
     description = db.StringField()
     language = db.StringField()
     copyright = db.StringField()
     image = db.StringField()
-    categories = db.ListField(db.StringField)
+    categories = db.ListField(db.StringField())
     owner = db.EmbeddedDocumentField(Person)
     last_fetched = db.DateTimeField()
     moved_to = db.URLField()
@@ -41,32 +40,8 @@ class Podcast(Model):
     episodes = db.EmbeddedDocumentListField(Episode)
 
     @classmethod
-    def get_by_url(cls, url, **kwargs):
-        podcast = cls.get_by_id(url, **kwargs)
+    def get_by_url(cls, url):
+        podcast = cls.objects(url=url).first()
         if podcast and podcast.moved_to:
             return cls.get_by_url(url, **kwargs)
         return podcast
-
-
-class SubscriptionHolder(object):
-    subscriptions = db.ListField(db.ReferenceField(Podcast, reverse_delete_rule=db.PULL))
-
-    def subscribe(self, podcast):
-        if podcast in self.subscriptions:
-            return False
-        self.modify(push__subscriptions=podcast)
-        return True
-
-    def subscribe_by_url(self, url):
-        podcast = Podcast.get_by_url(url, use_cache=False, use_memcache=False)
-        if podcast == None:
-            crawler.fetch(url)
-            return self.subscribe_by_url(url)
-        return self.subscribe(podcast)
-
-    def unsubscribe(self, podcast):
-        return self.modify(pull_subscriptions=podcast)
-
-    def unsubscribe_by_url(self, url):
-        podcast = Podcast.get_by_url
-        return self.unsubscribe(podcast)
