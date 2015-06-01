@@ -6,7 +6,7 @@ var EventEmitter = require("events").EventEmitter;
 
 var API = new EventEmitter();
 API.loaded = new Promise(function(resolve, reject){
-    API.load = function(root) {
+    API.load = function(root, client_id, scopes) {
         console.log("loading API.");
         root = root || config.get("DOMAIN")[0]
         var client = new swagger({
@@ -16,17 +16,17 @@ API.loaded = new Promise(function(resolve, reject){
                 resolve();
             }
         });
-        initPodatoAuth(root, client);
+        initPodatoAuth(root, client, client_id, scopes);
     }
 });
 
 
-function initPodatoAuth(root, client) {
+function initPodatoAuth(root, client, client_id, scopes) {
     API.PodatoAuth = function () {
         this.authData = JSON.parse(localStorage.getItem("authData")) || {};
         this.client = {
-            client_id: config.get("TRUSTED_CLIENTS[0].CLIENT_ID")[0],
-            scopes: Object.keys(config.get("OAUTH_SCOPES")[0]).join(" ")
+            client_id: client_id,
+            scopes: scopes
         }
         if (this.isAuthenticated()) {
             console.log("Detected existing session");

@@ -1,10 +1,11 @@
 const api = require("./api.js");
+var config = require("config");
 
 var apiRoot = void(0)
 if(location.hostname === "localhost"){
     apiRoot = location.origin;
 }
-api.load(apiRoot);
+api.load(apiRoot, config.get("TRUSTED_CLIENTS[0].CLIENT_ID")[0], Object.keys(config.get("OAUTH_SCOPES")[0]).join(" "));
 
 
 const docReady = require("doc-ready");
