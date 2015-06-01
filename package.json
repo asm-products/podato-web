@@ -47,6 +47,6 @@
     "react-router": "^0.13.2",
     "reactify": "^1.1.0",
     "sprintf": "^0.1.5",
-    "swagger-client": "bigblind/swagger-js#bf5ded8de2d1c17c107f8821294c897d148c1d17"
+    "swagger-client": "^2.1.6-M2"
   }
 }
