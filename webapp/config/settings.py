@@ -15,3 +15,5 @@ if REDIS_URL.endswith("/"):
     REDIS_URL += "0"
 else:
     REDIS_URL += "/0"
+
+MONGODB__HOST = os.environ.get("MONGOLAB_URI")
