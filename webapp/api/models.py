@@ -19,7 +19,8 @@ subscribe_fields = api.model("subscribe", {
     "podcast": fields.String
 })
 
-podcast_fields = api.extend("podcast_simple", id_field, {
+podcast_fields = api.model("podcast_simple", {
+    "id": fields.String(attribute="url"),
     "title": fields.String,
     "author": fields.String,
     "image": fields.String,

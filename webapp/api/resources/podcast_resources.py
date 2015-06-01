@@ -15,7 +15,7 @@ from webapp.podcasts import Podcast
 
 ns = api.namespace("podcasts")
 
-@ns.route("/p/<path:podcastId>", endpoint="podcast")
+@ns.route("/<path:podcastId>", endpoint="podcast")
 @api.doc(params={"podcastId":"A podcast's id (the same as its URL. If the API returns a podcast with a different URL, it means the podcast has moved."})
 class PodcastResource(Resource):
     @api.marshal_with(podcast_full_fields)

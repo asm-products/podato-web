@@ -86,4 +86,4 @@ class SubscriptionResource(Resource):
             user = User.get_by_id(userIdz)
         if not user:
             abort(404, message="User not found.")
-        return user.get_subscriptions()
+        return user.subscriptions
