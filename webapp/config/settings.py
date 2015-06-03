@@ -28,3 +28,7 @@ FACEBOOK_CONSUMER_KEY = os.environ["FACEBOOK_CONSUMER_KEY"]
 FACEBOOK_CONSUMER_SECRET = os.environ["FACEBOOK_CONSUMER_SECRET"]
 GOOGLE_CONSUMER_KEY = os.environ["GOOGLE_CONSUMER_KEY"]
 GOOGLE_CONSUMER_SECRET = os.environ["GOOGLE_CONSUMER_SECRET"]
+
+for client in TRUSTED_CLIENTS:
+    key = client["NAME"].upper() + "_CLIENT_SECRET"
+    locals()[key] = os.environ[key]

@@ -160,7 +160,7 @@ def _load_trusted_clients():
                             name=client_dict["NAME"],
                             redirect_uris=client_dict["REDIRECT_URLS"],
                             id=client_dict["CLIENT_ID"],
-                            secret=client_dict["CLIENT_SECRET"])
+                            secret=current_app.config[client_dict["NAME"].upper() + "_CLIENT_SECRET"])
         client.default_scopes = current_app.config.get("OAUTH_SCOPES").keys()
         client.javascript_origins = client_dict.get("JAVASCRIPT_ORIGINS")
         TRUSTED_CLIENTS[client_dict["CLIENT_ID"]] = client
