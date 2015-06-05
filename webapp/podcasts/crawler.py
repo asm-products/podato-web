@@ -24,14 +24,20 @@ def fetch(url_or_urls, subscribe=None):
         url_or_urls = [url_or_urls]
     body = _store_podcasts.s()
     if subscribe:
-        body.link(_subscribe_user.s(subscribe))
+        body.link(_subscribe_user.s(user=subscribe))
     return chord([_fetch_podcast_data.s(url) for url in url_or_urls])(body)
 
 
 @app.task
 def _fetch_podcast_data(url):
     utils.validate_url(url, allow_hash=False)
-    parsed = feedparser.parse(urllib2.urlopen(url))
+    try:
+        request = urllib2.Request(url)
+        opener = urllib2.build_opener()
+        request.add_header('User-Agent', PODATO_USER_AGENT)
+        parsed = feedparser.parse(opener.open(request))
+    except urllib2.HTTPError as e:
+        raise FetchError(str(e))
     return _handle_feed(url, parsed)
 
 def _handle_feed(url, parsed):
@@ -117,5 +123,5 @@ def _store_podcasts(podcasts_data):
     return Podcast.objects.insert(podcasts)
 
 @app.task
-def _subscribe_user(user, podcasts):
+def _subscribe_user(podcasts, user):
     return user.subscribe_multi(podcasts)
