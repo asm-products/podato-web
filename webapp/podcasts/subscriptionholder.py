@@ -1,3 +1,5 @@
+import logging
+
 from webapp.db import db
 from webapp.podcasts.models import Podcast
 from webapp.podcasts import crawler
@@ -26,6 +28,7 @@ class SubscriptionHolder(object):
 
     def subscribe_multi(self, podcasts):
         self.subscriptions += podcasts
+        self.subscriptions = list(set(self.subscriptions))
         self.put()
 
     def subscribe_multi_by_url(self, urls):

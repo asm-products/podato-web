@@ -2,6 +2,7 @@ import datetime
 import time
 
 import feedparser
+from eventlet.green import urllib2
 
 from webapp import utils
 from webapp.podcasts.models import  Podcast, Episode, Person, Enclosure
@@ -30,7 +31,7 @@ def fetch(url_or_urls, subscribe=None):
 @app.task
 def _fetch_podcast_data(url):
     utils.validate_url(url, allow_hash=False)
-    parsed = feedparser.parse(url, agent=PODATO_USER_AGENT)
+    parsed = feedparser.parse(urllib2.urlopen(url))
     return _handle_feed(url, parsed)
 
 def _handle_feed(url, parsed):
