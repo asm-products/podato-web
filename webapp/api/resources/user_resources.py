@@ -1,3 +1,5 @@
+import logging
+
 from flask import request
 from flask_restplus import Resource
 from flask_restplus import fields
@@ -37,7 +39,7 @@ class UserResource(Resource):
         return user
 
 podcastsParser = api.parser()
-podcastsParser.add_argument(name="podcast", action="append", required=True, location="args")
+podcastsParser.add_argument(name="podcast", required=True, location="args")
 
 @ns.route("/<string:userId>/subscriptions", endpoint="subscriptions")
 @api.doc({"userId": "A user ID, or \"me\" without quotes, for the user associated with the provided access token.", "podcast":"a podcast feed url."})
@@ -45,17 +47,17 @@ class SubscriptionResource(Resource):
     @api.marshal_with(success_status)
     @api.doc(id="subscribe", security=[{"javascript":[]}, {"server":[]}], parser=podcastsParser)
     def post(self, userId):
-        podcasts = podcastsParser.parse_args()["podcast"]
+        podcasts = podcastsParser.parse_args()["podcast"].split(",")
         if userId == "me":
             valid, req = oauth.verify_request([])
             if not valid:
                 raise AuthorizationRequired()
             user = req.user
-            for podcast in podcasts:
-                user.subscribe_by_url(podcast)
+            res = user.subscribe_multi_by_url(podcasts)
+            logging.error("Result from user.subscribe_multi_by_url: %s" % res)
+            return res
 
-            user.put()
-            return {"success": True}
+
 
     @api.marshal_with(success_status)
     @api.doc(id="unsubscribe", parser=podcastsParser)

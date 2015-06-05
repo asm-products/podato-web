@@ -45,3 +45,9 @@ class Podcast(Model):
         if podcast and podcast.moved_to:
             return cls.get_by_url(url, **kwargs)
         return podcast
+
+    @classmethod
+    def get_multi_by_url(cls, urls):
+        """Given a list of urls, returns a dictionary mapping from url to podcast."""
+        podcasts = cls.objects(url__in=urls)
+        return {podcast.url : podcast for podcast in podcasts}

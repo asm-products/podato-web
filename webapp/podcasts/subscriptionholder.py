@@ -1,6 +1,7 @@
 from webapp.db import db
 from webapp.podcasts.models import Podcast
 from webapp.podcasts import crawler
+from webapp.async import AsyncSuccess
 
 class SubscriptionHolder(object):
     subscriptions = db.ListField(db.ReferenceField(Podcast, reverse_delete_rule=db.PULL))
@@ -14,13 +15,37 @@ class SubscriptionHolder(object):
     def subscribe_by_url(self, url):
         podcast = Podcast.get_by_url(url)
         if podcast == None:
-            crawler.fetch(url)
-            return self.subscribe_by_url(url)
-        return self.subscribe(podcast)
+            return AsyncSuccess(async_result=crawler.fetch(url, subscribe=self))
+        return AsyncSuccess(success=self.subscribe(podcast))
 
     def unsubscribe(self, podcast):
         return self.modify(pull_subscriptions=podcast)
 
     def unsubscribe_by_url(self, url):
-        podcast = Podcast.get_by_url
-        return self.unsubscribe(podcast)
+        podcast = Podcast.get_by_url(url, subscribe=self)
+
+    def subscribe_multi(self, podcasts):
+        self.subscriptions += podcasts
+        self.put()
+
+    def subscribe_multi_by_url(self, urls):
+        podcasts = Podcast.get_multi_by_url(urls)
+        already_fetched = []
+        to_fetch = []
+        for url in urls:
+            if url in podcasts:
+                already_fetched.append(podcasts[url])
+            else:
+                to_fetch.append(url)
+
+        if already_fetched:
+            self.subscribe_multi(already_fetched)
+
+        res = None
+        success = None
+        if to_fetch:
+            res = crawler.fetch(to_fetch, subscribe=self)
+        else:
+            success = True
+
+        return AsyncSuccess(async_result=res, success=success)

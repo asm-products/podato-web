@@ -5,18 +5,29 @@ import feedparser
 
 from webapp import utils
 from webapp.podcasts.models import  Podcast, Episode, Person, Enclosure
+from webapp.async import app, chord
 
 PODATO_USER_AGENT = "Podato Crawler"
 
 class FetchError(Exception):
     pass
 
-def fetch(url):
-    """This fetches a podcast and stores it in the db. It assumes that it only gets called
+@app.task
+def fetch(url_or_urls, subscribe=None):
+    """This fetches a (list of) podcast(s) and stores it in the db. It assumes that it only gets called
     by Podcast.get_by_url, or some other method that knows whether a given podcast has
-    already been fetched."""
-    return Podcast(**_fetch_podcast_data(url)).put()
+    already been fetched.
 
+    If *subscribe* is given, it should be a User instance to be subscribed to the given podcasts."""
+    if isinstance(url_or_urls, basestring):
+        url_or_urls = [url_or_urls]
+    body = _store_podcasts.s()
+    if subscribe:
+        body.link(_subscribe_user.s(subscribe))
+    return chord([_fetch_podcast_data.s(url) for url in url_or_urls])(body)
+
+
+@app.task
 def _fetch_podcast_data(url):
     utils.validate_url(url, allow_hash=False)
     parsed = feedparser.parse(url, agent=PODATO_USER_AGENT)
@@ -59,7 +70,7 @@ def _make_episode(entry):
     return Episode(
         title=entry.title,
         subtitle=entry.subtitle,
-        description=entry.get("content", [{}, {}])[1].get("value") or entry.description,
+        description=_get_episode_description(entry),
         author=entry.author,
         guid=entry.guid,
         published=datetime.datetime.fromtimestamp(
@@ -73,6 +84,15 @@ def _make_episode(entry):
                               length=int(entry.enclosures[0].length)
         )
     )
+
+
+def _get_episode_description(entry):
+    for content in entry.get('content', []):
+        if "html" in content.type:
+            return content.value
+
+    return max(entry.get("description", ""), entry.get("summary", ""), key=len)
+
 
 def _parse_duration(entry):
     parts = entry.itunes_duration.split(":")
@@ -89,3 +109,12 @@ def _parse_explicit(entry):
         return 2
     else:
         return 0
+
+@app.task
+def _store_podcasts(podcasts_data):
+    podcasts = [Podcast(**pdata) for pdata in podcasts_data]
+    return Podcast.objects.insert(podcasts)
+
+@app.task
+def _subscribe_user(user, podcasts):
+    return user.subscribe_multi(podcasts)

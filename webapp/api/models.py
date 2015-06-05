@@ -6,7 +6,9 @@ id_field = api.model("id", {
 })
 
 success_status = api.model("success_status", {
-    "success": fields.Boolean
+    "success": fields.Boolean(required=False),
+    "state": fields.String(required=False),
+    "id": fields.String(required=False)
 })
 
 user_fields = api.extend("user", id_field, {
