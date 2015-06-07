@@ -24,6 +24,7 @@ class Episode(db.EmbeddedDocument):
     enclosure = db.EmbeddedDocumentField(Enclosure, required=True)
 
 
+
 class Podcast(Model):
     url = db.StringField(required=True, unique=True)
     title = db.StringField(required=True)

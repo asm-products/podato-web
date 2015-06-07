@@ -27,9 +27,11 @@ class SubscriptionHolder(object):
         podcast = Podcast.get_by_url(url, subscribe=self)
 
     def subscribe_multi(self, podcasts):
-        self.subscriptions += podcasts
-        self.subscriptions = list(set(self.subscriptions))
-        self.put()
+        not_already_subscribed = []
+        for podcast in odcasts:
+            if podcast not in self.subscriptions:
+                not_already_subscribed.append(podcast)
+            self.modify(push_all__subscriptions=not_already_subscribed)
 
     def subscribe_multi_by_url(self, urls):
         podcasts = Podcast.get_multi_by_url(urls)
