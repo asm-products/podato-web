@@ -39,6 +39,7 @@ class Podcast(Model):
     moved_to = db.URLField()
     complete = db.BooleanField()
     episodes = db.EmbeddedDocumentListField(Episode)
+    subscribers = db.IntField(default=0)
 
     @classmethod
     def get_by_url(cls, url):

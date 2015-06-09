@@ -62,7 +62,7 @@ class SubscriptionResource(Resource):
     @api.marshal_with(success_status)
     @api.doc(id="unsubscribe", parser=podcastsParser)
     def delete(self, userId):
-        podcasts = podcastsParser.parse_args()["podcast"]
+        podcast = podcastsParser.parse_args()["podcast"]
         if userId == "me":
             valid, req = oauth.verify_request([])
             if not valid:
@@ -71,10 +71,7 @@ class SubscriptionResource(Resource):
         else:
             user = User.get_by_id(userId)
 
-        for podcast in podcasts:
-            user.unsubscribe_by_url(podcast)
-        user.put()
-        return {"success": True}
+        return user.unsubscribe_by_url(podcast)
 
     @api.marshal_with(podcast_fields, as_list=True)
     @api.doc(id="getSubscriptions", security=[{"javascript":[]}, {"server":[]}])

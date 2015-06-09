@@ -21,10 +21,15 @@ class SubscriptionHolder(object):
         return AsyncSuccess(success=self.subscribe(podcast))
 
     def unsubscribe(self, podcast):
-        return self.modify(pull_subscriptions=podcast)
+        self.modify(pull__subscriptions=podcast)
+        podcast.modify(dec__subscribers=1)
+        return True
 
     def unsubscribe_by_url(self, url):
-        podcast = Podcast.get_by_url(url, subscribe=self)
+        podcast = Podcast.get_by_url(url)
+        if not podcast:
+            return False
+        return AsyncSuccess(success=self.unsubscribe(podcast))
 
     def subscribe_multi(self, podcasts):
         not_already_subscribed = []
@@ -32,6 +37,7 @@ class SubscriptionHolder(object):
             if podcast not in self.subscriptions:
                 not_already_subscribed.append(podcast)
             self.modify(push_all__subscriptions=not_already_subscribed)
+        Podcast.objects(url__in=[p.url for p in not_already_subscribed]).update(inc__subscribers)
 
     def subscribe_multi_by_url(self, urls):
         podcasts = Podcast.get_multi_by_url(urls)
