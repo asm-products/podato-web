@@ -26,7 +26,7 @@ class Episode(db.EmbeddedDocument):
 
 
 class Podcast(Model):
-    url = db.StringField(required=True, unique=True)
+    url = db.URLField(required=True, unique=True)
     title = db.StringField(required=True)
     author = db.StringField(required=True)
     description = db.StringField()
@@ -36,20 +36,17 @@ class Podcast(Model):
     categories = db.ListField(db.StringField())
     owner = db.EmbeddedDocumentField(Person)
     last_fetched = db.DateTimeField()
-    moved_to = db.URLField()
+    previous_urls = db.ListField(db.URLField(), default=[])
     complete = db.BooleanField()
     episodes = db.EmbeddedDocumentListField(Episode)
     subscribers = db.IntField(default=0)
 
     @classmethod
     def get_by_url(cls, url):
-        podcast = cls.objects(url=url).first()
-        if podcast and podcast.moved_to:
-            return cls.get_by_url(url, **kwargs)
-        return podcast
+        return cls.objects(db.Q(url=url) or db.Q(previous_urls=url)).first()
 
     @classmethod
     def get_multi_by_url(cls, urls):
         """Given a list of urls, returns a dictionary mapping from url to podcast."""
-        podcasts = cls.objects(url__in=urls)
+        podcasts = cls.objects(db.Q(url__in=urls) or db.Q(previous_urls__in=urls))
         return {podcast.url : podcast for podcast in podcasts}

@@ -1,5 +1,6 @@
 import datetime
 import time
+import logging
 
 import feedparser
 from eventlet.green import urllib2
@@ -35,7 +36,8 @@ def _fetch_podcast_data(url):
         request = urllib2.Request(url)
         opener = urllib2.build_opener()
         request.add_header('User-Agent', PODATO_USER_AGENT)
-        parsed = feedparser.parse(opener.open(request))
+        resp = opener.open(request)
+        parsed = feedparser.parse(resp)
     except urllib2.HTTPError as e:
         raise FetchError(str(e))
     return _handle_feed(url, parsed)
@@ -55,42 +57,50 @@ def _handle_feed(url, parsed):
     elif parsed.status not in [200, 302, 303, 307]:
         raise FetchError("Got an unexpected response from podcast server: %v" % parsed.status)
 
-    return {
-        "url": parsed.href,
-        "title": parsed.feed.title,
-        "author": parsed.feed.author,
-        "description": parsed.feed.description,
-        "language": parsed.feed.language,
-        "copyright": parsed.feed.get("rights"),
-        "image": parsed.feed.image.href,
-        "categories": [tag["term"] for tag in parsed.feed.tags],
-        "owner": Person(name=parsed.feed.publisher_detail.name,
-                        email=parsed.feed.publisher_detail.email),
-        "last_fetched": datetime.datetime.now(),
-        "complete": parsed.feed.get("itunes_complete") or False,
-        "episodes": [_make_episode(entry) for entry in parsed.entries],
-        "moved_to": moved_to
-    }
+    try:
+        return {
+            "url": parsed.href,
+            "title": parsed.feed.title,
+            "author": parsed.feed.author,
+            "description": parsed.feed.description,
+            "language": parsed.feed.language,
+            "copyright": parsed.feed.get("rights"),
+            "image": parsed.feed.image.href,
+            "categories": [tag["term"] for tag in parsed.feed.tags],
+            "owner": Person(name=parsed.feed.publisher_detail.name,
+                            email=parsed.feed.publisher_detail.email),
+            "last_fetched": datetime.datetime.now(),
+            "complete": parsed.feed.get("itunes_complete") or False,
+            "episodes": [_make_episode(entry) for entry in parsed.entries],
+            "previous_urls": [moved_to]
+        }
+    except Exception as e:
+        logging.exception("Encountered an exception while parsing %s" % (parsed.href))
+        raise
 
 
 def _make_episode(entry):
-    return Episode(
-        title=entry.title,
-        subtitle=entry.subtitle,
-        description=_get_episode_description(entry),
-        author=entry.author,
-        guid=entry.guid,
-        published=datetime.datetime.fromtimestamp(
-            time.mktime(entry.published_parsed
-        )),
-        image=entry.get("image", {}).get("href"),  #The use of .get ensures no errors are raised when there's no episode image.
-        duration=_parse_duration(entry),
-        explicit=_parse_explicit(entry),
-        enclosure=Enclosure(type=entry.enclosures[0].get("type"),
+    try:
+        return Episode(
+            title=entry.title,
+            subtitle=entry.subtitle,
+            description=_get_episode_description(entry),
+            author=entry.author,
+            guid=entry.guid,
+            published=datetime.datetime.fromtimestamp(
+                time.mktime(entry.published_parsed
+            )),
+            image=entry.get("image", {}).get("href"),  #The use of .get ensures no errors are raised when there's no episode image.
+            duration=_parse_duration(entry),
+            explicit=_parse_explicit(entry),
+            enclosure=Enclosure(type=entry.enclosures[0].get("type"),
                               url=entry.enclosures[0].href,
                               length=int(entry.enclosures[0].length)
+            )
         )
-    )
+    except Exception as e:
+        logging.exception("Got an exception while parsing episode: %s." % entry.link)
+        return None
 
 
 def _get_episode_description(entry):
@@ -104,8 +114,12 @@ def _get_episode_description(entry):
 def _parse_duration(entry):
     parts = entry.itunes_duration.split(":")
     d = 0
-    for i in xrange(min(len(parts), 3)):
-        d += int(parts[-(i+1)]) * 60**i
+    try:
+        for i in xrange(min(len(parts), 3)):
+            d += int(parts[-(i+1)]) * 60**i
+    except ValueError:
+        logging.error("Encountered an error while parsing duration %s, %s" % (entry.itunes_duration, entry.link))
+        return 0
     return d
 
 def _parse_explicit(entry):
