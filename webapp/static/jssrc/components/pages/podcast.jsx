@@ -9,8 +9,6 @@ const Podcast = React.createClass({
     mixins: [CurrentUserStore.mixin, PodcastsStore.mixin],
     contextTypes: {router: React.PropTypes.func},
     render(){
-        console.log("state:");
-        console.log(this.state);
         var episodes = this.state.podcast.episodes.map((e) => {
             return (
                 <div className="sm-col sm-col-12 clearfix" key={e.guid}>
@@ -24,18 +22,18 @@ const Podcast = React.createClass({
         });
         return (
             <div className="bg-white rounded p1">
-                <div className="clearfix">
-                    <div className="sm-col-12 p1">
+                <div className="clearfix mxn2">
+                    <div className="sm-col-12 p2">
                         <h1>{this.state.podcast.title}</h1>
                     </div>
                 </div>
-                <div className="clearfix">
-                    <div className="sm-col sm-col-1 md-col-3 p1">
+                <div className="clearfix mxn2">
+                    <div className="sm-col sm-col-1 md-col-3 p2">
                         <img src={this.state.podcast.image} />
                         <p>by {this.state.podcast.author}</p>
                     </div>
-                    <div className="sm-col sm-col-11 md-col-9 clearfix">
-                        <div className="sm-col sm-col-12 p1">
+                    <div className="sm-col sm-col-11 md-col-9 clearfix p2">
+                        <div className="sm-col sm-col-12">
                             <p>{this.state.podcast.description}</p>
                         </div>
                         {episodes}
@@ -65,6 +63,7 @@ const Podcast = React.createClass({
     storeDidChange(){
         console.log("store did change.");
         this.setState({currentUser:CurrentUserStore.getCurrentUser()});
+        this.setPodcast();
     },
     setPodcast(){
         var podcastId = this.context.router.getCurrentParams().splat;
