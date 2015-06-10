@@ -64,7 +64,6 @@ const Podcast = React.createClass({
     },
     storeDidChange(){
         console.log("store did change.");
-        this.setPodcast();
         this.setState({currentUser:CurrentUserStore.getCurrentUser()});
     },
     setPodcast(){

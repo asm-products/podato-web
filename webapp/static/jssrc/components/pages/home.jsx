@@ -1,10 +1,13 @@
 const React = require("react");
 
 const LoginButton = require("../auth/login-button.jsx")
+const PodcastGrid = require("../podcasts/podcast-grid.jsx")
 const CurrentUserStore = require("../../stores/current-user-store");
+const PopularPodcastsStore = require("../../stores/popular-podcasts-store");
+const PodcastActions = require("../../actions/podcast-actions");
 
 const Home = React.createClass({
-    mixins: [CurrentUserStore.mixin],
+    mixins: [CurrentUserStore.mixin, PopularPodcastsStore.mixin],
     render(){
         var auth = [
             (<LoginButton authProvider="Facebook" className="m1" />),
@@ -25,11 +28,19 @@ const Home = React.createClass({
                 <p className="center">
                     {auth}
                 </p>
+                <h2>Popular podcasts</h2>
+                <div className="clearfix">
+                    <PodcastGrid podcasts={this.state.popularPodcasts} className="sm-col sm-col-12 clearfix mxn2" />
+                </div>
+                <hr />
             </div>
         );
     },
+    componentWillMount() {
+        PodcastActions.fetchPopularPodcasts();
+    },
     getInitialState(){
-        return {authState: null};
+        return {authState: null, popularPodcasts: []};
     },
     storeDidChange(){
         var authState = null;
@@ -40,7 +51,7 @@ const Home = React.createClass({
         }else{
             authState = "done";
         }
-        this.setState({authState});
+        this.setState({authState: authState, popularPodcasts: PopularPodcastsStore.get()});
     }
 });
 

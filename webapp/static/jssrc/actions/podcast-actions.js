@@ -2,7 +2,7 @@
 const api = require("../api");
 const constants = require("../constants");
 
-const AuthActions = mcfly.createActions({
+const PodcastActions = mcfly.createActions({
     fetchPodcast(podcastId){
         console.log("fetchPodcast action called.");
         return new Promise((resolve, reject) => {
@@ -45,7 +45,19 @@ const AuthActions = mcfly.createActions({
             actionType: constants.actionTypes.FETCHING_SUBSCRIPTIONS,
             userId: userId
         }
+    },
+    fetchPopularPodcasts(){
+        return new Promise((resolve, reject) => {
+            api.loaded.then(() => {
+                api.podcasts.query({order:"subscribers"}, (res) => {
+                    resolve({
+                        actionType: constants.actionTypes.POPULAR_PODCASTS_FETCHED,
+                        podcasts: res.obj
+                    });
+                });
+            });
+        });
     }
 });
 
-module.exports = AuthActions;
+module.exports = PodcastActions;
