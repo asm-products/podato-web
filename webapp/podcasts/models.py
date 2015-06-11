@@ -52,4 +52,13 @@ class Podcast(Model):
     def get_multi_by_url(cls, urls):
         """Given a list of urls, returns a dictionary mapping from url to podcast."""
         podcasts = cls.objects(db.Q(url__in=urls) | db.Q(previous_urls__in=urls))
-        return {podcast.url : podcast for podcast in podcasts}
+        return {cls._pick_key(podcast, urls) : podcast for podcast in podcasts}
+
+    @classmethod
+    def _pick_key(cls, podcast, urls):
+        if podcast.url in urls:
+            return podcast.url
+        else:
+            for url in podcast.previous_urls:
+                if url in urls:
+                    return url
