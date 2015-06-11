@@ -4,10 +4,11 @@ const LoginButton = require("../auth/login-button.jsx")
 const PodcastGrid = require("../podcasts/podcast-grid.jsx")
 const CurrentUserStore = require("../../stores/current-user-store");
 const PopularPodcastsStore = require("../../stores/popular-podcasts-store");
+const SubscriptionsStore = require("../../stores/subscriptions-store");
 const PodcastActions = require("../../actions/podcast-actions");
 
 const Home = React.createClass({
-    mixins: [CurrentUserStore.mixin, PopularPodcastsStore.mixin],
+    mixins: [CurrentUserStore.mixin, PopularPodcastsStore.mixin, SubscriptionsStore.mixin],
     render(){
         var auth = [
             (<LoginButton authProvider="Facebook" className="m1" />),
@@ -18,7 +19,12 @@ const Home = React.createClass({
             auth = (<img src="/img/loading_bar.gif" />)
         }
         if(this.state.authState === "done") {
-            auth = (<a>Get started</a>)
+            auth = (<a>Get started</a>);
+            var subscriptions = [
+                <h3>Subscriptions</h3>,
+                <PodcastGrid podcasts={this.state.subscriptions} className="sm-col sm-col-12 clearfix mx2"/>,
+                <hr/>
+                ]
         }
 
         return (
@@ -28,19 +34,26 @@ const Home = React.createClass({
                 <p className="center">
                     {auth}
                 </p>
-                <h2>Popular podcasts</h2>
+                {subscriptions}
+                <h3>Popular podcasts</h3>
                 <div className="clearfix">
                     <PodcastGrid podcasts={this.state.popularPodcasts} className="sm-col sm-col-12 clearfix mxn2" />
                 </div>
                 <hr />
+                {}
             </div>
         );
     },
     componentWillMount() {
         PodcastActions.fetchPopularPodcasts();
     },
+    componentWillReceiveProps() {
+        if(CurrentUserStore.getCurrentUser != null){
+            PodcastActions.fetchSubscriptions("me");
+        }
+    },
     getInitialState(){
-        return {authState: null, popularPodcasts: []};
+        return {authState: null, popularPodcasts: [], subscriptions: []};
     },
     storeDidChange(){
         var authState = null;
@@ -51,7 +64,16 @@ const Home = React.createClass({
         }else{
             authState = "done";
         }
-        this.setState({authState: authState, popularPodcasts: PopularPodcastsStore.get()});
+        if (this.state.authState != "done" && authState == "done"){ //If the user has just logged in,
+            PodcastActions.fetchSubscriptions("me");                //Fetch the user's subscriptions
+        }
+        this.setState({
+            authState: authState,
+            popularPodcasts: PopularPodcastsStore.get(),
+            subscriptions: SubscriptionsStore.getSubscriptions("me") || [   ]
+        });
+        console.log("state:");
+        console.log(this.state);
     }
 });
 
