@@ -1,20 +1,20 @@
 import logging
 
-from google.appengine.ext import ndb
 from flask import abort
+from webapp.db import db
 
-from users.auth import facebook_api
+from webapp.users.auth import facebook_api
 
-class ProvidedIdentity(ndb.Model):
-    provider = ndb.StringProperty(required=True)
-    user_id = ndb.StringProperty(required=True)
-    access_token = ndb.StringProperty(required=True)
+class ProvidedIdentity(db.EmbeddedDocument):
+    provider = db.StringField(required=True)
+    user_id = db.StringField(required=True)
+    access_token = db.StringField(required=True)
 
 
 class ProviderTokenHolder(object):
     """This is one of User's superclasses, which stores the auth tokens of 3rd party providers like Facebook or Google"""
 
-    provided_identities = ndb.StructuredProperty(ProvidedIdentity, repeated=True)
+    provided_identities = db.EmbeddedDocumentListField(ProvidedIdentity)
 
     def add_provided_identity(self, provider, user_id, access_token):
         # If the user already has an identity from the given platform with the given id,
@@ -22,14 +22,16 @@ class ProviderTokenHolder(object):
         for identity in self.provided_identities:
             if identity.provider == provider and identity.user_id == user_id:
                 identity.access_token = access_token
+                self.put
                 return
 
 
-        self.provided_identities.append(ProvidedIdentity(
+        prid = ProvidedIdentity(
             provider="facebook",
             user_id=user_id,
             access_token=access_token
-        ))
+        )
+        self.modify(push__provided_identities=prid)
 
     def get_provider_token(self, provider, user_id=None):
         for identity in self.provided_identities:
@@ -41,8 +43,7 @@ class ProviderTokenHolder(object):
     @classmethod
     def get_by_provided_identity(cls, provider, user_id):
         """Gets the User associated with the given provided identity."""
-        return cls.query(cls.provided_identities.provider == provider,
-                         cls.provided_identities.user_id == user_id).get()
+        return cls.objects(provided_identities__provider=provider, provided_identities__user_id=user_id).first()
 
     @classmethod
     def login(cls, provider, provider_response):
@@ -59,6 +60,6 @@ class ProviderTokenHolder(object):
         user = cls.get_by_provided_identity("facebook", fb_user["id"])
         if not user:
             user = cls.create(fb_user["name"], fb_user["email"], facebook_api.get_avatar(fb_user["id"]))
+            user.put()
         user.add_provided_identity("facebook", fb_user["id"], access_token)
-        user.put()
         return user

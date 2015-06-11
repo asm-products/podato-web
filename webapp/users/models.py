@@ -1,17 +1,16 @@
 import md5
 
-from google.appengine.ext import ndb
+from webapp.db import db, Model
 
-from users import auth
-from podcasts import SubscriptionHolder
-from model_utils import IDMixin
-import utils
+from webapp.users import auth
+from webapp.podcasts import SubscriptionHolder
+from webapp import utils
 
-class User(ndb.Model, auth.ProviderTokenHolder, SubscriptionHolder, IDMixin):
-    username = ndb.StringProperty(required=True)
-    primary_email = ndb.StringProperty(required=True)
-    email_addresses = ndb.StringProperty(repeated=True)
-    avatar_url = ndb.StringProperty()
+class User(Model, auth.ProviderTokenHolder, SubscriptionHolder):
+    username = db.StringField(required=True)
+    primary_email = db.EmailField(required=True)
+    email_addresses = db.ListField(db.EmailField())
+    avatar_url = db.URLField()
 
     @classmethod
     def create(cls, username, email, avatar_url=None):
@@ -22,12 +21,4 @@ class User(ndb.Model, auth.ProviderTokenHolder, SubscriptionHolder, IDMixin):
             email_addresses=[email],
             avatar_url="https://gravatar.com/avatar/%s" % email_hash
         )
-        instance.validate()
         return instance
-
-    def validate(self):
-        utils.validate_email(self.primary_email)
-
-        if self.avatar_url:
-            utils.validate_url(self.avatar_url, allow_hash=False)
-

@@ -1,5 +1,5 @@
 """Contains any functions that access the Facebook api"""
-from users.auth.providers import facebook
+from webapp.users.auth.providers import facebook
 
 API_VERSION = "v2.2"
 

@@ -1,14 +1,16 @@
+import logging
+
 from flask import request
 from flask_restplus import Resource
 from flask_restplus import fields
 from flask_restplus import abort
 
-from utils import AttributeHider
-from api.oauth import oauth
-from api.oauth import AuthorizationRequired
-from api.blueprint import api
-from api.models import user_fields, subscribe_fields, podcast_fields, success_status
-from users import User
+from webapp.utils import AttributeHider
+from webapp.api.oauth import oauth
+from webapp.api.oauth import AuthorizationRequired
+from webapp.api.blueprint import api
+from webapp.api.models import user_fields, subscribe_fields, podcast_fields, success_status
+from webapp.users import User
 
 
 ns = api.namespace("users")
@@ -37,7 +39,7 @@ class UserResource(Resource):
         return user
 
 podcastsParser = api.parser()
-podcastsParser.add_argument(name="podcast", action="append", required=True, location="args")
+podcastsParser.add_argument(name="podcast", required=True, location="args")
 
 @ns.route("/<string:userId>/subscriptions", endpoint="subscriptions")
 @api.doc({"userId": "A user ID, or \"me\" without quotes, for the user associated with the provided access token.", "podcast":"a podcast feed url."})
@@ -45,22 +47,22 @@ class SubscriptionResource(Resource):
     @api.marshal_with(success_status)
     @api.doc(id="subscribe", security=[{"javascript":[]}, {"server":[]}], parser=podcastsParser)
     def post(self, userId):
-        podcasts = podcastsParser.parse_args()["podcast"]
+        podcasts = podcastsParser.parse_args()["podcast"].split(",")
         if userId == "me":
             valid, req = oauth.verify_request([])
             if not valid:
                 raise AuthorizationRequired()
             user = req.user
-            for podcast in podcasts:
-                user.subscribe_by_url(podcast)
+            res = user.subscribe_multi_by_url(podcasts)
+            logging.error("Result from user.subscribe_multi_by_url: %s" % res)
+            return res
 
-            user.put()
-            return {"success": True}
+
 
     @api.marshal_with(success_status)
     @api.doc(id="unsubscribe", parser=podcastsParser)
     def delete(self, userId):
-        podcasts = podcastsParser.parse_args()["podcast"]
+        podcast = podcastsParser.parse_args()["podcast"]
         if userId == "me":
             valid, req = oauth.verify_request([])
             if not valid:
@@ -69,10 +71,7 @@ class SubscriptionResource(Resource):
         else:
             user = User.get_by_id(userId)
 
-        for podcast in podcasts:
-            user.unsubscribe_by_url(podcast)
-        user.put()
-        return {"success": True}
+        return user.unsubscribe_by_url(podcast)
 
     @api.marshal_with(podcast_fields, as_list=True)
     @api.doc(id="getSubscriptions", security=[{"javascript":[]}, {"server":[]}])
@@ -86,4 +85,4 @@ class SubscriptionResource(Resource):
             user = User.get_by_id(userIdz)
         if not user:
             abort(404, message="User not found.")
-        return user.get_subscriptions()
+        return user.subscriptions

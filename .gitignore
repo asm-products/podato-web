@@ -56,12 +56,12 @@ target
 # PyCharm
 .idea
 
-# ignore files that contain sensitive information
-webapp/config/settings.json
-
 # ignore npm deps.
 node_modules
 npm-debug.log
 
 # ignore js builds
 webapp/static/js/**/*
+
+#ignore environment variable file
+.env

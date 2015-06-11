@@ -2,7 +2,7 @@
 const api = require("../api");
 const constants = require("../constants");
 
-const PodcastsActions = mcfly.createActions({
+const PodcastActions = mcfly.createActions({
     subscribe(podcastIds){
         return new Promise((resolve, reject) => {
             api.loaded.then(() => {
@@ -28,7 +28,7 @@ const PodcastsActions = mcfly.createActions({
                         return
                     }
                     resolve({
-                        actionType: constants.actionTypes.UNSIBSCRIBED,
+                        actionType: constants.actionTypes.UNSUBSCRIBED,
                         podcasts: podcastIds
                     });
                 });
@@ -53,7 +53,7 @@ const PodcastsActions = mcfly.createActions({
     },
     fetchSubscriptions(userId){
         userId = userId || "me"
-        PodcastsActions.fetchingSubscriptions(userId);
+        PodcastActions.fetchingSubscriptions(userId);
         return new Promise((resolve, reject) => {
             api.loaded.then(() => {
                 api.users.getSubscriptions({userId: userId}, (resp) => {
@@ -75,7 +75,19 @@ const PodcastsActions = mcfly.createActions({
             actionType: constants.actionTypes.FETCHING_SUBSCRIPTIONS,
             userId: userId
         }
+    },
+    fetchPopularPodcasts(){
+        return new Promise((resolve, reject) => {
+            api.loaded.then(() => {
+                api.podcasts.query({order:"subscribers"}, (res) => {
+                    resolve({
+                        actionType: constants.actionTypes.POPULAR_PODCASTS_FETCHED,
+                        podcasts: res.obj
+                    });
+                });
+            });
+        });
     }
 });
 
-module.exports = PodcastsActions;;
+module.exports = PodcastActions;

@@ -3,10 +3,10 @@ import logging
 from flask import render_template
 from flask import request
 
-from api.blueprint import api_blueprint
-from api.oauth import oauth
-from api.oauth import clients
-from users.auth import session
+from webapp.api.blueprint import api_blueprint
+from webapp.api.oauth import oauth
+from webapp.api.oauth import clients
+from webapp.users.auth import session
 
 
 @api_blueprint.route('/oauth/token')
