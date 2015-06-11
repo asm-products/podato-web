@@ -58,6 +58,15 @@ def _handle_feed(url, parsed):
         raise FetchError("Got an unexpected response from podcast server: %v" % parsed.status)
 
     try:
+        errors = []
+        episodes = []
+        for entry in parsed.entries:
+            episode, ep_errors = _make_episode(entry)
+            if ep_errors:
+                errors += ep_errors
+            if episode:
+                episodes.append(episode)
+
         return {
             "url": parsed.href,
             "title": parsed.feed.title,
@@ -71,7 +80,7 @@ def _handle_feed(url, parsed):
                             email=parsed.feed.publisher_detail.email),
             "last_fetched": datetime.datetime.now(),
             "complete": parsed.feed.get("itunes_complete") or False,
-            "episodes": [_make_episode(entry) for entry in parsed.entries],
+            "episodes": episodes,
             "previous_urls": [moved_to]
         }
     except Exception as e:
@@ -80,8 +89,11 @@ def _handle_feed(url, parsed):
 
 
 def _make_episode(entry):
+    errors = []
+    if not entry.get('enclosures'):
+         return None, ["Episode %s has no enclosure."]
     try:
-        return Episode(
+        episode = Episode(
             title=entry.title,
             subtitle=entry.subtitle,
             description=_get_episode_description(entry),
@@ -91,16 +103,19 @@ def _make_episode(entry):
                 time.mktime(entry.published_parsed
             )),
             image=entry.get("image", {}).get("href"),  #The use of .get ensures no errors are raised when there's no episode image.
-            duration=_parse_duration(entry),
+            duration=_parse_duration(entry, errors),
             explicit=_parse_explicit(entry),
             enclosure=Enclosure(type=entry.enclosures[0].get("type"),
                               url=entry.enclosures[0].href,
                               length=int(entry.enclosures[0].length)
             )
         )
+        if episode.image is None:
+            errors.append("No image for episode %s" % (episode.guid))
+        return episode, errors
     except Exception as e:
-        logging.exception("Got an exception while parsing episode: %s." % entry.link)
-        return None
+        logging.exception("Got an exception while parsing episode: %s." % entry.guid)
+        return None, [str(e + " episode: %s" % entry.guid)]
 
 
 def _get_episode_description(entry):
@@ -111,14 +126,15 @@ def _get_episode_description(entry):
     return max(entry.get("description", ""), entry.get("summary", ""), key=len)
 
 
-def _parse_duration(entry):
+def _parse_duration(entry, errors):
     parts = entry.itunes_duration.split(":")
     d = 0
     try:
         for i in xrange(min(len(parts), 3)):
             d += int(parts[-(i+1)]) * 60**i
     except ValueError:
-        logging.error("Encountered an error while parsing duration %s, %s" % (entry.itunes_duration, entry.link))
+        logging.exception("Encountered an error while parsing duration %s, %s" % (entry.itunes_duration, entry.guid))
+        errors.append("Could not parse episode duration: \"%s\", for episode %s." % (entry.itunes_duration, entry.guid))
         return 0
     return d
 
