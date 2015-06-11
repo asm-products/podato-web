@@ -1,5 +1,7 @@
 from webapp.db import db, Model
 
+from mongoengine import Q
+
 class Person(db.EmbeddedDocument):
     name = db.StringField()
     email = db.EmailField()
@@ -44,10 +46,10 @@ class Podcast(Model):
 
     @classmethod
     def get_by_url(cls, url):
-        return cls.objects(db.Q(url=url) or db.Q(previous_urls=url)).first()
+        return cls.objects(db.Q(url=url) | db.Q(previous_urls=url)).first()
 
     @classmethod
     def get_multi_by_url(cls, urls):
         """Given a list of urls, returns a dictionary mapping from url to podcast."""
-        podcasts = cls.objects(db.Q(url__in=urls) or db.Q(previous_urls__in=urls))
+        podcasts = cls.objects(db.Q(url__in=urls) | db.Q(previous_urls__in=urls))
         return {podcast.url : podcast for podcast in podcasts}
