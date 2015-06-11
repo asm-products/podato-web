@@ -94,6 +94,7 @@ def _handle_feed(url, parsed, code):
             "last_fetched": datetime.datetime.now(),
             "complete": parsed.feed.get("itunes_complete") or False,
             "episodes": episodes,
+            "errors": errors
         }
         if previous_url:
             d["previous_urls"] = [previous_url]
