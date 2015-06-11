@@ -9,6 +9,8 @@ from webapp import utils
 from webapp.podcasts.models import  Podcast, Episode, Person, Enclosure
 from webapp.async import app, chord
 
+from mongoengine.base import fields
+
 PODATO_USER_AGENT = "Podato Crawler"
 
 class FetchError(Exception):
@@ -52,7 +54,7 @@ def _fetch_podcast_data(url):
         parsed = feedparser.parse(resp)
     except urllib2.HTTPError as e:
         raise FetchError(str(e))
-    return _handle_feed(url, parsed, resp.status)
+    return _handle_feed(url, parsed, getattr(resp, "status", resp.getcode()))
 
 def _handle_feed(url, parsed, code):
     previous_url = None
