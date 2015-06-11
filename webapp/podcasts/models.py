@@ -36,7 +36,7 @@ class Podcast(Model):
     categories = db.ListField(db.StringField())
     owner = db.EmbeddedDocumentField(Person)
     last_fetched = db.DateTimeField()
-    previous_urls = db.ListField(db.URLField(), default=[])
+    previous_urls = db.ListField(db.StringField(), default=[])
     complete = db.BooleanField()
     episodes = db.EmbeddedDocumentListField(Episode)
     subscribers = db.IntField(default=0)

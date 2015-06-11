@@ -14,6 +14,17 @@ PODATO_USER_AGENT = "Podato Crawler"
 class FetchError(Exception):
     pass
 
+class SmartRedirectHandler(urllib2.HTTPRedirectHandler):
+    def http_error_302(self, req, fp, code, msg, headers):
+        result = urllib2.HTTPRedirectHandler.http_error_302(self, req, fp,
+                                                                 code, msg,
+                                                                 headers)
+        result.status = code
+        result.headers = headers
+        return result
+
+    http_error_301 = http_error_303 = http_error_307 = http_error_302
+
 @app.task
 def fetch(url_or_urls, subscribe=None):
     """This fetches a (list of) podcast(s) and stores it in the db. It assumes that it only gets called
@@ -34,40 +45,42 @@ def _fetch_podcast_data(url):
     utils.validate_url(url, allow_hash=False)
     try:
         request = urllib2.Request(url)
-        opener = urllib2.build_opener()
+        opener = urllib2.build_opener(SmartRedirectHandler)
         request.add_header('User-Agent', PODATO_USER_AGENT)
+        logging.info("fetching %s" % url)
         resp = opener.open(request)
         parsed = feedparser.parse(resp)
     except urllib2.HTTPError as e:
         raise FetchError(str(e))
-    return _handle_feed(url, parsed)
+    return _handle_feed(url, parsed, resp.status)
 
-def _handle_feed(url, parsed):
-    moved_to = None
-    if parsed.status == 404:
+def _handle_feed(url, parsed, code):
+    previous_url = None
+    logging.info("response_code: %s" % code)
+    if code == 404:
         raise FetchError("Podcast not found: %s" % (url))
-    if parsed.status == 401:
+    if code == 401:
         raise FetchError("This podcast feed requires authentication.")
-    elif parsed.status == 410:
+    elif code == 410:
         raise FetchError("Podcast no longer available: %s" % (url))
-    elif parsed.status == 301: # Permanent redirect
-        moved_to = parsed.href
-    elif parsed.status == 304: # Not modified
+    elif code == 301: # Permanent redirect
+        previous_url = url
+    elif code == 304: # Not modified
         return {}
-    elif parsed.status not in [200, 302, 303, 307]:
+    elif code not in [200, 302, 303, 307]:
         raise FetchError("Got an unexpected response from podcast server: %v" % parsed.status)
 
     try:
         errors = []
         episodes = []
         for entry in parsed.entries:
-            episode, ep_errors = _make_episode(entry)
+            episode, ep_errors = _make_episode(entry    )
             if ep_errors:
                 errors += ep_errors
             if episode:
                 episodes.append(episode)
 
-        return {
+        d = {
             "url": parsed.href,
             "title": parsed.feed.title,
             "author": parsed.feed.author,
@@ -81,8 +94,10 @@ def _handle_feed(url, parsed):
             "last_fetched": datetime.datetime.now(),
             "complete": parsed.feed.get("itunes_complete") or False,
             "episodes": episodes,
-            "previous_urls": [moved_to]
         }
+        if previous_url:
+            d["previous_urls"] = [previous_url]
+        return d
     except Exception as e:
         logging.exception("Encountered an exception while parsing %s" % (parsed.href))
         raise

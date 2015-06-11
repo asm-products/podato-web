@@ -68,4 +68,5 @@ podcast_full_fields = api.extend("podcast_full", podcast_fields, {
     "language": fields.String,
     "complete": fields.Boolean,
     "episodes": fields.List(fields.Nested(episode_fields)),
+    "previous_urls": fields.List(fields.String)
 })
