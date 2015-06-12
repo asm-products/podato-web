@@ -54,6 +54,10 @@ const SubscribeButton = React.createClass({
     },
     storeDidChange(){
         var newState = this.makeState();
+        console.log("old state:");
+        console.log(this.state);
+        console.log("new state");
+        console.log(newState);
         if(newState.subscribed !== this.state.subscribed){
             newState.disabled=false;
         }

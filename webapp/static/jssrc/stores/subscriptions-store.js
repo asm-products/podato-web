@@ -1,16 +1,23 @@
-    const mcfly = require("../mcfly");
+const mcfly = require("../mcfly");
 const constants = require("../constants");
+const utils = require("../utils.js");
+//When we need to show an overview of the user's subscriptions, we fetch the full list, and store it here.
+var subscriptions = {};
+//When a user subscribes to a podcast, we only store the podcast's url here.
+var subscribed_urls = [];
 
-var subscriptions = {}
 var fetching = []
 
 const SubscriptionsStore = mcfly.createStore({
     getSubscriptions(userId){return subscriptions[userId]},
     isFetchingSubscriptions(userId){return (fetching.indexOf(userId) >= 0)},
+
     isSubscribedTo(userId, podcast){
-        return (subscriptions[userId] && subscriptions[userId].filter((p) => {
-            return p.id == podcast
-        }).length > 0)
+        var in_subscriptions = (subscriptions[userId] && subscriptions[userId].filter((p) => {
+            return p.id == podcast;
+        }).length > 0);
+        var in_subscribed_urls = (userId === "me" && subscribed_urls.indexOf(podcast) >= 0);
+        return (in_subscriptions || in_subscribed_urls);
     }
 }, function(data){
     switch(data.actionType){
@@ -22,8 +29,17 @@ const SubscriptionsStore = mcfly.createStore({
             break;
         case constants.actionTypes.FETCHING_SUBSCRIPTIONS:
             fetching.push(data.userId);
-            console.log("Received fetching event:");
-            console.log(data);
+            break;
+        case constants.actionTypes.SUBSCRIBED:
+            subscribed_urls = utils.unique(subscribed_urls.concat(data.podcasts));
+            break;
+        case constants.actionTypes.UNSUBSCRIBED:
+            subscriptions.me = subscriptions.me.filter((item) => {
+                return data.podcasts.indexOf(item.id) < 0;
+            });
+            subscribed_urls = subscribed_urls.filter((item) => {
+                return data.podcasts.indexOf(item) < 0;
+            });
             break;
         default:
             return

@@ -1,5 +1,5 @@
 var utils = {
-    encodeQueryString: function(obj){
+    encodeQueryString(obj) {
         var pairs = [];
         for(var key in obj){
             if(obj.hasOwnProperty(key) && obj[key] !== void(0)) {
@@ -7,6 +7,11 @@ var utils = {
             }
         }
         return "?" + pairs.join("&");
+    },
+    unique(a){
+        return a.filter(function(item, pos, self) {
+            return self.indexOf(item) == pos;
+        })
     }
 };
 

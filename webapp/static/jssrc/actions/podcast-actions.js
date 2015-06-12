@@ -4,6 +4,9 @@ const constants = require("../constants");
 
 const PodcastActions = mcfly.createActions({
     subscribe(podcastIds){
+        if(podcastIds.constructor !== Array){
+            podcastIds = [podcastIds];
+        }
         return new Promise((resolve, reject) => {
             api.loaded.then(() => {
                 api.users.subscribe({userId: "me", podcast:podcastIds}, (resp) => {
@@ -18,6 +21,9 @@ const PodcastActions = mcfly.createActions({
         });
     },
     unsubscribe(podcastIds){
+        if(podcastIds.constructor !== Array){
+            podcastIds = [podcastIds];
+        }
         return new Promise((resolve, reject) => {
             api.loaded.then(() => {
                 api.users.unsubscribe({userId: "me", podcast: podcastIds}, (resp) => {
