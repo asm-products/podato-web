@@ -7,14 +7,12 @@ const PodcastActions = mcfly.createActions({
         return new Promise((resolve, reject) => {
             api.loaded.then(() => {
                 api.users.subscribe({userId: "me", podcast:podcastIds}, (resp) => {
-                    if(resp.status !== 200){
-                        reject(resp.statusText);
-                        return
-                    }
-                    resolve({
-                        actionType: constants.actionTypes.SUBSCRIBED,
-                        podcasts: podcastIds
-                    })
+                    API.asyncResultToPromise(resp).then((result) => {
+                        resolve({
+                            actionType: constants.actionTypes.SUBSCRIBED,
+                            podcasts: podcastIds
+                        });
+                    });
                 });
             });
         });
@@ -23,13 +21,11 @@ const PodcastActions = mcfly.createActions({
         return new Promise((resolve, reject) => {
             api.loaded.then(() => {
                 api.users.unsubscribe({userId: "me", podcast: podcastIds}, (resp) => {
-                    if(resp.status !== 200){
-                        reject(resp.statusText);
-                        return
-                    }
-                    resolve({
-                        actionType: constants.actionTypes.UNSUBSCRIBED,
-                        podcasts: podcastIds
+                    API.asyncResultToPromise(resp).then((res) => {
+                        resolve({
+                            actionType: constants.actionTypes.UNSUBSCRIBED,
+                            podcasts: podcastIds
+                        });
                     });
                 });
             });

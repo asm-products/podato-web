@@ -75,6 +75,37 @@ function initPodatoAuth(root, client, client_id, scopes) {
         req.headers.Authorization = "Bearer " + this.authData.access_token;
     }
 
+    API.asyncResultToPromise = (asyncResult) => {
+        console.log("starting to check for async result: "+asyncResult.id);
+
+        var pollInterval = 500;
+        return new Promise((resolve, reject) => {
+            var handleResponse = (resp) => {
+                if(resp.obj.state == "SUCCESS"){
+                    resolve(resp.obj);
+                    return true;
+                }else if(resp.obj.state == "FAILURE"){
+                    reject(resp.obj);
+                    return true;
+                }
+                return false;
+            }
+
+            if(handleResponse(asyncResult)){
+                return;
+            }
+
+            var intervalId = setInterval(() => {
+                API.async.getAsync({asyncId: asyncResult.id}, (resp) => {
+                    console.log("Polling...");
+                    if (handleResponse(resp)){
+                        clearInterval(intervalId);
+                    }
+                });
+            }, pollInterval);
+        });
+    };
+
     var instance = new API.PodatoAuth();
     client.clientAuthorizations.add("javascript", instance)
     API.login = instance.login.bind(instance);
