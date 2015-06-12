@@ -22,7 +22,7 @@ const SubscribeButton = React.createClass({
                 <button disabled="true" className={className} onClick={this.subscribe} disabled={this.state.disabled}>Subscribe</button>
             )
         }
-        className = "button bg-darken-2" + (this.props.className || "");
+        className = "button bg-darken-4" + (this.props.className || "");
         return (
             <button className={className} onClick={this.unsubscribe} disabled={this.state.disabled}>Unsubscribe</button>
         )
