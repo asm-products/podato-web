@@ -72,8 +72,6 @@ const Home = React.createClass({
             popularPodcasts: PopularPodcastsStore.get(),
             subscriptions: SubscriptionsStore.getSubscriptions("me") || [   ]
         });
-        console.log("state:");
-        console.log(this.state);
     }
 });
 

@@ -64,21 +64,16 @@ const Podcast = React.createClass({
         this.setPodcast();
     },
     storeDidChange(){
-        console.log("store did change.");
         this.setState({currentUser:CurrentUserStore.getCurrentUser()});
         this.setPodcast();
     },
     setPodcast(){
         var podcastId = this.context.router.getCurrentParams().splat;
         var podcast = PodcastsStore.getPodcast(podcastId);
-        console.log("podcastId: "+podcastId);
-        console.log(this.context.router.getCurrentParams())
 
         if (!podcast){
-            console.log("fetching the podcast...");
             PodcastsActions.fetchPodcast(podcastId);
         }else{
-            console.log("updated state with podcast.");
             this.setState({podcast:podcast});
         }
     }
