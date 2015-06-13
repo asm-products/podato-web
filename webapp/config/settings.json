@@ -8,11 +8,11 @@
             "NAME": "podato_web",
             "REDIRECT_URLS": [
                 "http://localhost:8080/auth/callback",
-                "https://podato-server.appspot.com/auth/callback"
+                "https://podato.herokuapp.com/auth/callback"
             ],
             "JAVASCRIPT_ORIGINS": [
                 "http://localhost:8080",
-                "https://podato-server.appspot.com"
+                "https://podatoapp.herokuapp.com"
             ],
             "CLIENT_ID": "af3aeb1f956d81e8da0e0cbadc396115"
         }
