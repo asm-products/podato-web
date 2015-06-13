@@ -1,6 +1,7 @@
 {
     "JSON_AS_ASCII": false,
     "OAUTH2_PROVIDER_TOKEN_EXPIRES_IN": 2592000,
+    "DOMAIN": "https://podato.herokuapp.com",
 
     "TRUSTED_CLIENTS": [
         {
