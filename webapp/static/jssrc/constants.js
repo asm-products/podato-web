@@ -6,6 +6,7 @@ module.exports = {
         LOGGED_OUT:null,
         LOGGING_IN:null,
         PODCAST_FETCHED:null,
+        POPULAR_PODCASTS_FETCHED: null,
         SUBSCRIPTIONS_FETCHED: null,
         FETCHING_SUBSCRIPTIONS: null,
         SUBSCRIBED: null,

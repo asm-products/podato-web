@@ -22,7 +22,7 @@ const Home = React.createClass({
             auth = (<a>Get started</a>);
             var subscriptions = [
                 <h3>Subscriptions</h3>,
-                <PodcastGrid podcasts={this.state.subscriptions} className="sm-col sm-col-12 clearfix mx2"/>,
+                <PodcastGrid podcasts={this.state.subscriptions} className="sm-col sm-col-12 clearfix mxn2"/>,
                 <hr/>
                 ]
         }
