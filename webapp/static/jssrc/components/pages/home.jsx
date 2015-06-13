@@ -28,7 +28,7 @@ const Home = React.createClass({
         }
 
         return (
-            <div className="bg-white rounded p1">
+            <div className="bg-white rounded p2 px4">
                 <h1 className="center">Podato</h1>
                 <h2 className="center">Enjoy Podcasts Together</h2>
                 <p className="center">

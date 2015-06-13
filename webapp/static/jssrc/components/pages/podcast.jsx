@@ -23,7 +23,7 @@ const Podcast = React.createClass({
             );
         });
         return (
-            <div className="bg-white rounded p1">
+            <div className="bg-white rounded p2 px4">
                 <div className="clearfix mxn2">
                     <div className="sm-col-12 p2">
                         <h1>{this.state.podcast.title}</h1>
