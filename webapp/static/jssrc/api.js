@@ -82,7 +82,7 @@ function initPodatoAuth(root, client, client_id, scopes) {
         return new Promise((resolve, reject) => {
             var handleResponse = (resp) => {
                 if(resp.obj.state == "SUCCESS"){
-                    resolve(resp.obj);
+                        resolve(resp.obj);
                     return true;
                 }else if(resp.obj.state == "FAILURE"){
                     reject(resp.obj);

@@ -10,9 +10,9 @@ for key, value in data.iteritems():
 DEBUG = bool(int(os.environ.get("DEBUG", 0)))
 SECRET_KEY = os.environ["SECRET_KEY"]
 
-SERVER_NAME = os.environ.get("HTTP_HOST", "localhost") + ":" + os.environ["PORT"]
+SERVER_NAME = os.environ.get("HTTP_HOST", "localhost:"+os.environ["PORT"])
 
-DEFAULT_PROTOCOL = "http"
+DEFAULT_PROTOCOL = "https"
 if "localhost" in SERVER_NAME:
     DEFAULT_PROTOCOL = "http"
 
