@@ -22,7 +22,7 @@ if REDIS_URL.endswith("/"):
 else:
     REDIS_URL += "/0"
 
-MONGODB__HOST = os.environ.get("MONGOLAB_URI")
+MONGODB_HOST = os.environ.get("MONGOLAB_URI")
 
 FACEBOOK_CONSUMER_KEY = os.environ["FACEBOOK_CONSUMER_KEY"]
 FACEBOOK_CONSUMER_SECRET = os.environ["FACEBOOK_CONSUMER_SECRET"]
