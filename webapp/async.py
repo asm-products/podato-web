@@ -23,8 +23,14 @@ def update_sent_state(sender=None, body=None, **kwargs):
 
 
 class AsyncSuccess(object):
+    """This class represents the result of an async operation."""
 
     def __init__(self, async_result=None, success=None):
+        """Create a new result for an async operation. Only one of async_result and success should be given.
+        async_result should be a celery AsyncResult. success should be a boolean. Passing in a value for success means that the operation has already been completed,
+        so the success state is known.
+        A task that failed or succeeded immediately may not have an id.
+        """
         if async_result != None and success != None:
             raise ValueError("async_result and success shouldn't both be given.")
 
@@ -38,6 +44,7 @@ class AsyncSuccess(object):
 
     @property
     def _final_async_result(self):
+        """Within Celery, one task may start another. This method traverses the chain of tasks to get to the last one, to get its state. For internal use only."""
         if self._final_async_result_cache:
             return self._final_async_result_cache
 
@@ -56,6 +63,7 @@ class AsyncSuccess(object):
 
     @property
     def success(self):
+        """Whether this operation was successful"""
         if self._success != None:
             return self._success
 
@@ -63,6 +71,10 @@ class AsyncSuccess(object):
 
     @property
     def state(self):
+        """Gets the state of this operation. It can be DOESNOTEXIST if you'veasked
+           for a task by id that does not exist, QUEUED if the task is in the queue,
+           awaiting execution, SUCCESS if the task succeeded or FAILURE if the task failed."""
+
         if self._success != None:
             return {True: "SUCCESS", False: "FAILURE"}[self._success]
         state = self._final_async_result.state
@@ -73,6 +85,7 @@ class AsyncSuccess(object):
 
     @classmethod
     def get(cls, id):
+        """Get a task by its id."""
         return cls(async_result=AsyncResult(id))
 
     def __repr__(self):
