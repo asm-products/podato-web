@@ -1,12 +1,25 @@
 from flask import current_app as podatoApp
 from celery import *
 from celery.result import ResultBase, AsyncResult
+from celery.signals import after_task_publish
+
 
 app = Celery()
 
 app.conf.CELERY_RESULT_BACKEND = podatoApp.config["REDIS_URL"]
 app.conf.BROKER_URL = podatoApp.config["REDIS_URL"]
 app.conf.CELERY_TRACK_STARTED = True
+
+
+@after_task_publish.connect
+def update_sent_state(sender=None, body=None, **kwargs):
+    # the task may not exist if sent using `send_task` which
+    # sends tasks by name, so fall back to the default result backend
+    # if that is the case.
+    task = app.tasks.get(sender)
+    backend = task.backend if task else current_app.backend
+
+    backend.store_result(body['id'], None, "QUEUED")
 
 
 class AsyncSuccess(object):
@@ -52,7 +65,11 @@ class AsyncSuccess(object):
     def state(self):
         if self._success != None:
             return {True: "SUCCESS", False: "FAILURE"}[self._success]
-        return self._final_async_result.state
+        state = self._final_async_result.state
+        if state == "PENDING":
+            state = "DOESNOTEXIST"
+        return state
+
 
     @classmethod
     def get(cls, id):
