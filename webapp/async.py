@@ -67,6 +67,9 @@ class AsyncSuccess(object):
         if self._success != None:
             return self._success
 
+        if self.state == "DOESNOTEXIST":
+            return False
+
         return not isinstance(self._final_async_result.result, Exception)
 
     @property
