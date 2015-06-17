@@ -11,7 +11,7 @@ var truncate = function(s){
 const PodcastTile = React.createClass({
     render(){
         return (<div className="sm-col sm-col-2 px2 overflow-hidden" style={{"textOverflow": "ellipsis", "whiteSpace": "nowrap"}}>
-                    <Link to="podcast" params={{splat: this.props.podcast.id}} title={this.props.podcast.title}>
+                    <Link to="podcast" params={{splat: encodeURIComponent(this.props.podcast.id)}} title={this.props.podcast.title}>
                         <div className="center">
                             <img src={this.props.podcast.image} alt="" />
                         </div>

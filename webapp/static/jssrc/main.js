@@ -28,7 +28,7 @@ api.loaded.then(() =>{
 var routes = (
     <Route name="app" path="/" handler={App}>
         <DefaultRoute name="home" handler={Home} />
-        <Route name="podcast" path="podcasts/*" handler={Podcast} />
+        <Route name="podcast" path="podcasts/*/" handler={Podcast} />
     </Route>
 )
 
