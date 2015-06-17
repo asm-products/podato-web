@@ -132,8 +132,8 @@ def _make_episode(entry):
             errors.append("No image for episode %s" % (episode.guid))
         return episode, errors
     except Exception as e:
-        logging.exception("Got an exception while parsing episode: %s." % entry.guid)
-        return None, [str(e + " episode: %s" % entry.guid)]
+        logging.exception("Got an exception while parsing episode: %s." % entry.id)
+        return None, [str(e) + " episode: %s" % entry.id]
 
 
 def _get_episode_description(entry):
@@ -145,14 +145,18 @@ def _get_episode_description(entry):
 
 
 def _parse_duration(entry, errors):
-    parts = entry.itunes_duration.split(":")
-    d = 0
     try:
+        parts = entry.itunes_duration.split(":")
+        d = 0
         for i in xrange(min(len(parts), 3)):
             d += int(parts[-(i+1)]) * 60**i
     except ValueError:
-        logging.exception("Encountered an error while parsing duration %s, %s" % (entry.itunes_duration, entry.guid))
-        errors.append("Could not parse episode duration: \"%s\", for episode %s." % (entry.itunes_duration, entry.guid))
+        logging.exception("Encountered an error while parsing duration %s, %s" % (entry.itunes_duration, entry.id))
+        errors.append("Could not parse episode duration: \"%s\", for episode %s." % (entry.itunes_duration, entry.id))
+        return 0
+    except AttributeError:
+        logging.exception("Encountered an error while parsing duration %s" % entry.id)
+        errors.append("Episode doesn't have an itunes:duration: %s" % entry.id)
         return 0
     return d
 
