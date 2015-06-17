@@ -1,21 +1,13 @@
 const React = require("react");
 const Link = require("react-router").Link;
 
-var truncate = function(s){
-    if (s.length > 500){
-        return s.substring(0, 497)+"...";
-    }
-    return s
-}
 
 const PodcastTile = React.createClass({
     render(){
-        return (<div className="sm-col sm-col-2 px2 overflow-hidden" style={{"textOverflow": "ellipsis", "whiteSpace": "nowrap"}}>
-                    <Link to="podcast" params={{splat: encodeURIComponent(this.props.podcast.id)}} title={this.props.podcast.title}>
-                        <div className="center">
-                            <img src={this.props.podcast.image} alt="" />
-                        </div>
-                        <p>{truncate(this.props.podcast.title)}</p>
+        return (<div className="sm-col sm-col-2 px2">
+                    <Link to="podcast" params={{splat: encodeURIComponent(this.props.podcast.id)}} title={this.props.podcast.title} className="block fit mx-auto">
+                        <img src={this.props.podcast.image} alt="" className="fit"/>
+                        <p className="center fit overflow-hidden" style={{textOverflow: "ellipsis", whiteSpace: "nowrap"}}>{this.props.podcast.title}</p>
                     </Link>
                 </div>);
     }
