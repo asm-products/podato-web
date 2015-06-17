@@ -16,7 +16,7 @@ DEFAULT_PROTOCOL = "https"
 if "localhost" in SERVER_NAME:
     DEFAULT_PROTOCOL = "http"
 
-REDIS_URL = os.environ.get("REDISTOGO_URL")
+REDIS_URL = os.environ.get("REDISCLOUD_URL")
 if REDIS_URL.endswith("/"):
     REDIS_URL += "0"
 else:
