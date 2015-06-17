@@ -1,3 +1,6 @@
+import logging
+import sys
+
 import db
 import cache
 import flask
@@ -7,6 +10,7 @@ from config import settings
 
 app = flask.Flask(__name__)
 app.config.from_object(settings)
+app.logger.addHandler(logging.StreamHandler(sys.stdin))
 db.init_db(app)
 cache.init_cache(app)
 
