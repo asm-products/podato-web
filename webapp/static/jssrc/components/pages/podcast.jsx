@@ -13,11 +13,13 @@ const Podcast = React.createClass({
     render(){
         var episodes = this.state.podcast.episodes.map((e) => {
             return (
-                <div className="sm-col sm-col-12 clearfix" key={e.guid}>
-                    <div className="sm-col sm-col-1"><img src={e.image || this.state.podcast.image} /></div>
-                    <div className="sm-col sm-col-11 p1">
-                        <div className="bold">{e.title}</div>
-                        <div>{e.subtitle}</div>
+                <div className="sm-col sm-col-12 clearfix mxn1 mb2 border-bottom border-silver" key={e.guid}>
+                    <div className="sm-col sm-col-1 px1">
+                        <img src={e.image || this.state.podcast.image} />
+                    </div>
+                    <div className="sm-col sm-col-11 px1">
+                        <span>{e.title}</span><br/>
+                        <span>{e.subtitle}</span>
                     </div>
                 </div>
             );
