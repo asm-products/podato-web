@@ -10,7 +10,7 @@ app = Celery()
 app.conf.CELERY_RESULT_BACKEND = podatoApp.config["REDIS_URL"]
 app.conf.BROKER_URL = podatoApp.config["REDIS_URL"]
 app.conf.CELERY_TRACK_STARTED = True
-
+app.conf.BROKER_POOL_LIMIT = 3
 
 @before_task_publish.connect
 def update_sent_state(sender=None, body=None, **kwargs):
