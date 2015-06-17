@@ -17,7 +17,7 @@ const Podcast = React.createClass({
                     <div className="sm-col sm-col-1 px1">
                         <img src={e.image || this.state.podcast.image} />
                     </div>
-                    <div className="sm-col sm-col-11 px1">
+                    <div className="sm-col sm-col-11 px1 lh1">
                         <span>{e.title}</span><br/>
                         <span>{e.subtitle}</span>
                     </div>

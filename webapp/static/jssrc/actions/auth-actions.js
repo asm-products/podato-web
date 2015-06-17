@@ -25,6 +25,7 @@ var authListener = () => {
     api.loaded.then(() => {
         api.users.getUser({userId: "me"}, function(resp){
             AuthActions.loggedIn(resp.obj)
+            heap.identify({handle: resp.obj.username, podato_id:resp.obj.id});
         });
     });
 };
