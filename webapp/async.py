@@ -1,8 +1,9 @@
 from flask import current_app as podatoApp
 from celery import *
 from celery.result import ResultBase, AsyncResult
-from celery.signals import after_task_publish
+from celery.signals import before_task_publish
 
+import logging
 
 app = Celery()
 
@@ -11,16 +12,16 @@ app.conf.BROKER_URL = podatoApp.config["REDIS_URL"]
 app.conf.CELERY_TRACK_STARTED = True
 
 
-@after_task_publish.connect
+@before_task_publish.connect
 def update_sent_state(sender=None, body=None, **kwargs):
     # the task may not exist if sent using `send_task` which
     # sends tasks by name, so fall back to the default result backend
     # if that is the case.
-    task = app.tasks.get(sender)
+    task = current_app.tasks.get(sender)
     backend = task.backend if task else current_app.backend
+    logging.debug("Setting status for %s" % body["id"])
 
     backend.store_result(body['id'], None, "QUEUED")
-
 
 class AsyncSuccess(object):
     """This class represents the result of an async operation."""
@@ -48,8 +49,13 @@ class AsyncSuccess(object):
         if self._final_async_result_cache:
             return self._final_async_result_cache
 
+        self._final_async_result_cache = list(self._iter_async_results())[-1]
+        return self._final_async_result_cache
+
+    def _iter_async_results(self):
+        """Iterate over the chain of async results."""
         if not self.async_result:
-            return None
+            return
 
         result = self.async_result
         lastResult = self.async_result
@@ -57,9 +63,9 @@ class AsyncSuccess(object):
             if isinstance(result, ResultBase):
                 lastResult = result
                 result = result.result
+                yield lastResult
             else:
-                return lastResult
-
+                return
 
     @property
     def success(self):
@@ -80,10 +86,14 @@ class AsyncSuccess(object):
 
         if self._success != None:
             return {True: "SUCCESS", False: "FAILURE"}[self._success]
-        state = self._final_async_result.state
-        if state == "PENDING":
+        if self.async_result.state == "PENDING":
             state = "DOESNOTEXIST"
-        return state
+        if self.async_result.state == "QUEUED":
+            return "QUEUED"
+        last = self._final_async_result
+        if last.state in ["SUCCESS", "FAILURE", "STARTED"]:
+            return last.state
+        return "STARTED"
 
 
     @classmethod
