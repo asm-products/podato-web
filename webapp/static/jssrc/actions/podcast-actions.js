@@ -1,6 +1,11 @@
-    const mcfly = require("../mcfly");
+const mcfly = require("../mcfly");
 const api = require("../api");
 const constants = require("../constants");
+
+var transformPodcast = function(podcast){
+    podcast.id = encodeURIComponent(podcast.id);
+    return podcast;
+}
 
 const PodcastActions = mcfly.createActions({
     subscribe(podcastIds){
@@ -47,7 +52,7 @@ const PodcastActions = mcfly.createActions({
                     }
                     resolve({
                         actionType: constants.actionTypes.PODCAST_FETCHED,
-                        podcast: resp.obj
+                        podcast: transformPodcast(resp.obj)
                     });
                 });
             });
@@ -65,7 +70,7 @@ const PodcastActions = mcfly.createActions({
                     }
                     resolve({
                         actionType: constants.actionTypes.SUBSCRIPTIONS_FETCHED,
-                        subscriptions: resp.obj,
+                        subscriptions: resp.obj.map(transformPodcast),
                         userId: userId
                     })
                 })
@@ -84,7 +89,7 @@ const PodcastActions = mcfly.createActions({
                 api.podcasts.query({order:"subscribers"}, (res) => {
                     resolve({
                         actionType: constants.actionTypes.POPULAR_PODCASTS_FETCHED,
-                        podcasts: res.obj
+                        podcasts: res.obj.map(transformPodcast)
                     });
                 });
             });
