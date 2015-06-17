@@ -10,7 +10,7 @@ from config import settings
 
 app = flask.Flask(__name__)
 app.config.from_object(settings)
-app.logger.addHandler(logging.StreamHandler(sys.stdin))
+app.logger.addHandler(logging.StreamHandler(sys.stdout))
 db.init_db(app)
 cache.init_cache(app)
 
