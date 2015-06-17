@@ -33,8 +33,8 @@ queryParser.add_argument(name="order", required=False, location="args", default=
 queryParser.add_argument(name="category", required=False, location="args")
 queryParser.add_argument(name="author", required=False, location="args")
 queryParser.add_argument(name="language", required=False, location="args")
-queryParser.add_argument(name="page", default=1)
-queryParser.add_argument(name="per_page", default=30)
+queryParser.add_argument(name="page", default=1, type=int)
+queryParser.add_argument(name="per_page", default=30, type=int)
 
 @ns.route("/")
 class PodcastQueryResource(Resource):
