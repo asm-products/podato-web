@@ -71,6 +71,12 @@ function initPodatoAuth(root, client, client_id, scopes) {
         return this.authData.access_token && this.authData.expires > new Date().getTime();
     }
 
+    API.PodatoAuth.prototype.logout = function(){
+        this.authData = null;
+        localStorage.authData = null;
+        API.emit("unauthenticated");
+    }
+
     API.PodatoAuth.prototype.apply = function (req) {
         req.headers.Authorization = "Bearer " + this.authData.access_token;
     }
@@ -109,6 +115,7 @@ function initPodatoAuth(root, client, client_id, scopes) {
     var instance = new API.PodatoAuth();
     client.clientAuthorizations.add("javascript", instance)
     API.login = instance.login.bind(instance);
+    API.logout = instance.logout.bind(instance);
     API.isLoggedIn = instance.isAuthenticated.bind(instance);
     console.log("auth initialized");
 }

@@ -17,6 +17,17 @@ const AuthActions = mcfly.createActions({
             actionType: constants.actionTypes.LOGGED_IN,
             user: user
         };
+    },
+    logout(){
+        api.logout();
+        return {
+            actionType: constants.actionTypes.LOGGING_OUT
+        }
+    },
+    loggedOut(){
+        return {
+            actionType: constants.actionTypes.LOGGED_OUT
+        }
     }
 });
 
@@ -30,7 +41,12 @@ var authListener = () => {
     });
 };
 
+var unauthListener = () => {
+    AuthActions.loggedOut();
+}
+
 api.addListener("authenticated", authListener);
+api.addListener("unauthenticated", unauthListener);
 if(api.isLoggedIn()){
     authListener();
 }
