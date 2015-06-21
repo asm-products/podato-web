@@ -16,6 +16,10 @@ const CurrentUserStore = mcfly.createStore({
             loggingIn = false;
             currentUser = data.user;
             break;
+        case constants.actionTypes.LOGGED_OUT:
+            loggingIn = false;
+            currentUser = null;
+            break;
         default:
             return
     }
