@@ -32,13 +32,10 @@
     "through": "^2.3.6",
     "through2": "^0.6.3",
     "vinyl-buffer": "^1.0.0",
-    "vinyl-source-stream": "^1.0.0"
-  },
-  "dependencies": {
+    "vinyl-source-stream": "^1.0.0",
     "ax": "^0.2.2",
     "cookiejar": "^2.0.1",
     "doc-ready": "^1.0.3",
-    "es6ify": "^1.6.0",
     "gulp": "^3.8.11",
     "iconv-lite": "^0.4.7",
     "keymirror": "^0.1.1",
@@ -46,7 +43,6 @@
     "merge": "^1.2.0",
     "react": "^0.13.1",
     "react-router": "^0.13.2",
-    "reactify": "^1.1.0",
     "sprintf": "^0.1.5",
     "swagger-client": "^2.1.6-M2"
   }
