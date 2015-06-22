@@ -28,13 +28,25 @@ const AuthActions = mcfly.createActions({
         return {
             actionType: constants.actionTypes.LOGGED_OUT
         }
+    },
+    fetchUser(userId){
+        return new Promise((resolve, reject) => {
+            api.loaded.then(() => {
+                api.users.getUser({userId: userId}, (resp) => {
+                    resolve({
+                        actionType: constants.actionTypes.USER_FETCHED,
+                        user: resp.obj
+                    });
+                });
+            });
+        });
     }
 });
 
 var authListener = () => {
     AuthActions.loggingIn();
     api.loaded.then(() => {
-        api.users.getUser({userId: "me"}, function(resp){
+        api.users.getUser({userId: "me"}, (resp) => {
             AuthActions.loggedIn(resp.obj)
             heap.identify({handle: resp.obj.username, podato_id:resp.obj.id});
         });

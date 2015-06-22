@@ -36,7 +36,7 @@ class UserResource(Resource):
 
         # make sure the client is authorized to get the user's email.
         valid, req = oauth.verify_request(["userinfo/email"])
-        if not (valid and (userId == "me" or userId == req.user.key.id())):
+        if not (valid and (userId == "me" or userId == req.user.id)):
             return AttributeHider(user, ["primary_email"])
         return user
 

@@ -8,7 +8,7 @@ from webapp import utils
 
 class User(Model, auth.ProviderTokenHolder, SubscriptionHolder):
     """Model that represents a user."""
-    username = db.StringField(required=True)
+    username = db.StringField(required=True, unique=True)
     primary_email = db.EmailField(required=True)
     email_addresses = db.ListField(db.EmailField())
     avatar_url = db.URLField()

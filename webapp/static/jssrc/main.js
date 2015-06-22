@@ -18,7 +18,7 @@ const DefaultRoute = Router.DefaultRoute;
 const App = require("./components/app.jsx");
 const Home = require("./components/pages/home.jsx");
 const Podcast = require("./components/pages/podcast.jsx");
-
+const User = require("./components/pages/user.jsx");
 
 api.loaded.then(() =>{
     console.log("api loaded");
@@ -29,6 +29,7 @@ var routes = (
     <Route name="app" path="/" handler={App}>
         <DefaultRoute name="home" handler={Home} />
         <Route name="podcast" path="podcasts/*/" handler={Podcast} />
+        <Route name="user" path="users/:userId" handler={User} />
     </Route>
 )
 
