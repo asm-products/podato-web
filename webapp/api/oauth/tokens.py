@@ -19,6 +19,14 @@ class GrantToken(Model):
 
     @classmethod
     def create(cls, client_id, code, user, redirect_uri, scopes):
+        """Creates a new GrantToken
+
+        client_id: The id of the client to which this grant token was issued.
+        code: The code associated with this token, used for lookup.
+        user: The user who is asked to grant access.
+        redirect_uri: the uri to be redirected to after access is granted
+        scopes: the requested oauth scopes.
+        """
         expires = datetime.datetime.utcnow() + datetime.timedelta(seconds=120)
         instance = cls(
             client_id=client_id,
@@ -34,10 +42,12 @@ class GrantToken(Model):
 
     @classmethod
     def make_id(cls, client_id, code):
+        """A consistent way to make an id for a grant_token."""
         return "%s-%s" % (client_id, code)
 
     @classmethod
     def lookup(cls, client_id, code):
+        """Looks up a grant token for the given client and code."""
         return cls.get_by_id(cls.make_id(client_id, code))
 
 

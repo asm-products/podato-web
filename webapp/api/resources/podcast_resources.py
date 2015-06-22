@@ -9,7 +9,7 @@ from webapp.utils import AttributeHider
 from webapp.api.oauth import oauth
 from webapp.api.oauth import AuthorizationRequired
 from webapp.api.blueprint import api
-from webapp.api.models import podcast_full_fields, podcast_fields
+from webapp.api.representations import podcast_full_fields, podcast_fields
 from webapp.podcasts import Podcast
 
 
@@ -18,10 +18,11 @@ ns = api.namespace("podcasts")
 @ns.route("/<path:podcastId>", endpoint="podcast")
 @api.doc(params={"podcastId":"A podcast's id (the same as its URL. If the API returns a podcast with a different URL, it means the podcast has moved."})
 class PodcastResource(Resource):
-
+    """Resource that represents a podcast."""
     @api.marshal_with(podcast_full_fields)
     @api.doc(id="getPodcast")
     def get(self, podcastId):
+        """Get a podcast by id."""
         podcastId = urllib.unquote(podcastId)
         podcast = Podcast.get_by_url(podcastId)
         if podcast == None:
@@ -38,10 +39,12 @@ queryParser.add_argument(name="per_page", default=30, type=int)
 
 @ns.route("/")
 class PodcastQueryResource(Resource):
+    """Resource representing the collection of al podcasts."""
 
     @api.marshal_with(podcast_fields, as_list=True)
     @api.doc(id="query", parser=queryParser)
     def get(self):
+        """Query for podcasts."""
         args = queryParser.parse_args()
         query = Podcast.objects
         if args.get("order"):

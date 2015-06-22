@@ -1,3 +1,7 @@
+"""
+This module contains representations of data to be returned by the API. flask-restplus calls them models,
+But that's confusing, because the name clashes with database models.
+"""
 from webapp.api.blueprint import api
 from flask_restplus import fields
 

@@ -9,7 +9,7 @@ from webapp.utils import AttributeHider
 from webapp.api.oauth import oauth
 from webapp.api.oauth import AuthorizationRequired
 from webapp.api.blueprint import api
-from webapp.api.models import user_fields, subscribe_fields, podcast_fields, success_status
+from webapp.api.representations import user_fields, subscribe_fields, podcast_fields, success_status
 from webapp.users import User
 
 
@@ -18,9 +18,11 @@ ns = api.namespace("users")
 @ns.route("/<string:userId>", endpoint="user")
 @api.doc(params={"userId": "A user ID, or \"me\" without quotes, for the user associated with the provided access token."})
 class UserResource(Resource):
+    """Resource representing a single user."""
     @api.marshal_with(user_fields)
     @api.doc(id="getUser", security=[{"javascript":[]}, {"server":[]}])
     def get(self, userId):
+        """Get a user."""
         if userId == "me":
             valid, req = oauth.verify_request(["publicuserinfo/read"])
             if not valid:
@@ -43,10 +45,12 @@ podcastsParser.add_argument(name="podcast", required=True, location="args")
 
 @ns.route("/<string:userId>/subscriptions", endpoint="subscriptions")
 @api.doc({"userId": "A user ID, or \"me\" without quotes, for the user associated with the provided access token.", "podcast":"a podcast feed url."})
-class SubscriptionResource(Resource):
+class SubscriptionsResource(Resource):
+    """Resource representing a user's subscriptions."""
     @api.marshal_with(success_status)
     @api.doc(id="subscribe", security=[{"javascript":[]}, {"server":[]}], parser=podcastsParser)
     def post(self, userId):
+        """Subscribe the user to a podcast"""
         podcasts = podcastsParser.parse_args()["podcast"].split(",")
         if userId == "me":
             valid, req = oauth.verify_request([])
@@ -62,6 +66,7 @@ class SubscriptionResource(Resource):
     @api.marshal_with(success_status)
     @api.doc(id="unsubscribe", parser=podcastsParser)
     def delete(self, userId):
+        """Unsubscribe the user from a podcast."""
         podcast = podcastsParser.parse_args()["podcast"]
         if userId == "me":
             valid, req = oauth.verify_request([])
@@ -76,6 +81,7 @@ class SubscriptionResource(Resource):
     @api.marshal_with(podcast_fields, as_list=True)
     @api.doc(id="getSubscriptions", security=[{"javascript":[]}, {"server":[]}])
     def get(self, userId):
+        """Get all the user's subscriptions."""
         if userId == "me":
             valid, req = oauth.verify_request([])
             if not valid:

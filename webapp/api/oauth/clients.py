@@ -1,3 +1,6 @@
+"""
+This module contains models for oauth clients.
+"""
 import logging
 
 from webapp.db import db, Model
@@ -15,6 +18,7 @@ TRUSTED_CLIENTS = {}
 
 
 def _split_lines(t):
+    """If t is a string, returns a list of lines in t, with extra whitespace removed."""
     if isinstance(t, list):
         return t
     lines = map(strip, t.split('\n'))
@@ -59,9 +63,11 @@ class Application(Model):
         return instance
 
     def add_owner(self, owner):
+        """Add a user as an owner of an application."""
         self.modify(push__owners=owner)
 
     def remove_owner(self, owner):
+        """Remove a user as an owner of an application"""
         self.modify(pull__owners=owner)
 
     def add_client(self, *args, **kwargs):
@@ -147,6 +153,7 @@ class Client(Model):
 
 
 def _load_trusted_clients():
+    """Loads al trusted clients"""
     global PODATO_APP
     if TRUSTED_CLIENTS:
         return TRUSTED_CLIENTS
