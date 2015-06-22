@@ -3,17 +3,20 @@ from webapp.db import db, Model
 from mongoengine import Q
 
 class Person(db.EmbeddedDocument):
+    """Model that represents a person within a podcast feed."""
     name = db.StringField()
     email = db.EmailField()
 
 
 class Enclosure(db.EmbeddedDocument):
+    """Model that represents an enclosure (an episode's file.)"""
     url = db.URLField()
     length = db.IntField()
     type = db.StringField()
 
 
 class Episode(db.EmbeddedDocument):
+    """Model that represents a podcast episode."""
     title = db.StringField(required=True)
     subtitle = db.StringField()
     description = db.StringField()
@@ -28,6 +31,7 @@ class Episode(db.EmbeddedDocument):
 
 
 class Podcast(Model):
+    """Model that represents a podcast."""
     url = db.URLField(required=True, unique=True)
     title = db.StringField(required=True)
     author = db.StringField(required=True)
@@ -46,6 +50,7 @@ class Podcast(Model):
 
     @classmethod
     def get_by_url(cls, url):
+        """Get a podcast by its feed url. If the podcast has moved, the podcast at its new url will be returned."""
         return cls.objects(db.Q(url=url) | db.Q(previous_urls=url)).first()
 
     @classmethod
@@ -56,6 +61,7 @@ class Podcast(Model):
 
     @classmethod
     def _pick_key(cls, podcast, urls):
+        """Helper method for get_multi_by_url that determines which key to use for a given podcast in the returned dictionary."""
         if podcast.url in urls:
             return podcast.url
         else:

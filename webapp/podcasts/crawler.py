@@ -57,6 +57,7 @@ def _fetch_podcast_data(url):
     return _handle_feed(url, parsed, getattr(resp, "status", resp.getcode()))
 
 def _handle_feed(url, parsed, code):
+    """Handles the parsed result of a feed, putting it into a dict for storage."""
     previous_url = None
     logging.info("response_code: %s" % code)
     if code == 404:
@@ -107,6 +108,7 @@ def _handle_feed(url, parsed, code):
 
 
 def _make_episode(entry):
+    """Crate an Episode object from the given feedparser item."""
     errors = []
     if not entry.get('enclosures'):
          return None, ["Episode %s has no enclosure."]
@@ -137,6 +139,7 @@ def _make_episode(entry):
 
 
 def _get_episode_description(entry):
+    """Pull an episode's description (show notes) from the episode."""
     for content in entry.get('content', []):
         if "html" in content.type:
             return content.value
@@ -145,6 +148,7 @@ def _get_episode_description(entry):
 
 
 def _parse_duration(entry, errors):
+    """Parse an episode's duration into an integer representing the number of seconds."""
     try:
         parts = entry.itunes_duration.split(":")
         d = 0
@@ -161,6 +165,7 @@ def _parse_duration(entry, errors):
     return d
 
 def _parse_explicit(entry):
+    """Parse the itunes:explicit tag of an episode."""
     exp = entry.get("itunes_explicit")
     if exp == "yes":
         return 1
@@ -171,9 +176,11 @@ def _parse_explicit(entry):
 
 @app.task
 def _store_podcasts(podcasts_data):
+    """Given a list of dictionaries representing podcasts, store them all in the database."""
     podcasts = [Podcast(**pdata) for pdata in podcasts_data]
     return Podcast.objects.insert(podcasts)
 
 @app.task
 def _subscribe_user(podcasts, user):
+    """Subscribe the given users to all the podcasts in the list."""
     return user.subscribe_multi(podcasts)
