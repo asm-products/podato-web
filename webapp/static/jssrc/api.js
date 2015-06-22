@@ -5,10 +5,16 @@ var merge = require("merge");
 var EventEmitter = require("events").EventEmitter;
 
 var API = new EventEmitter();
+
+// API.loaded is a promise that will be resolved as soon as the API is ready to be used.
 API.loaded = new Promise(function(resolve, reject){
+    //Clients call API.load to start loading the API. root should be the protocol and host to connect to.
+    //client_id should be the client id used for authorization, scopes should be the requested scopes.
     API.load = function(root, client_id, scopes) {
         console.log("loading API.");
         root = root || config.get("DOMAIN")[0]
+
+        //Set up the Swagger client
         var client = new swagger({
             url: root + "/api/swagger.json",
             success: function () {
@@ -16,6 +22,7 @@ API.loaded = new Promise(function(resolve, reject){
                 resolve();
             }
         });
+        //Set up our authentication code.
         initPodatoAuth(root, client, client_id, scopes);
     }
 });
@@ -81,42 +88,47 @@ function initPodatoAuth(root, client, client_id, scopes) {
         req.headers.Authorization = "Bearer " + this.authData.access_token;
     }
 
-    API.asyncResultToPromise = (asyncResult) => {
-        console.log("starting to check for async result: "+asyncResult.id);
-
-        var pollInterval = 500;
-        return new Promise((resolve, reject) => {
-            var handleResponse = (resp) => {
-                if(resp.obj.state == "SUCCESS"){
-                        resolve(resp.obj);
-                    return true;
-                }else if(resp.obj.state == "FAILURE"){
-                    reject(resp.obj);
-                    return true;
-                }
-                return false;
-            }
-
-            if(handleResponse(asyncResult)){
-                return;
-            }
-
-            var intervalId = setInterval(() => {
-                API.async.getAsync({asyncId: asyncResult.id}, (resp) => {
-                    console.log("Polling...");
-                    if (handleResponse(resp)){
-                        clearInterval(intervalId);
-                    }
-                });
-            }, pollInterval);
-        });
-    };
-
-    var instance = new API.PodatoAuth();
-    client.clientAuthorizations.add("javascript", instance)
-    API.login = instance.login.bind(instance);
-    API.logout = instance.logout.bind(instance);
-    API.isLoggedIn = instance.isAuthenticated.bind(instance);
+    var auth = new API.PodatoAuth();
+    client.clientAuthorizations.add("javascript", auth)
+    API.login = auth.login.bind(auth);
+    API.logout = auth.logout.bind(auth);
+    API.isLoggedIn = auth.isAuthenticated.bind(auth);
     console.log("auth initialized");
 }
+
+//Takes an async result as returned by the api, and turns it into a Promise, to
+//be resolved as soon as the job is done.
+API.asyncResultToPromise = (asyncResult) => {
+    console.log("starting to check for async result: "+asyncResult.id);
+
+    var pollInterval = 500;
+    return new Promise((resolve, reject) => {
+        //This function returns true if the response indicates the job is done.
+        var handleResponse = (resp) => {
+            if(resp.obj.state == "SUCCESS"){
+                    resolve(resp.obj);
+                return true;
+            }else if(resp.obj.state == "FAILURE"){
+                reject(resp.obj);
+                return true;
+            }
+            return false;
+        }
+
+        //If the job is already done, thee's no need to start polling.
+        if(handleResponse(asyncResult)){
+            return;
+        }
+
+        var intervalId = setInterval(() => {
+            API.async.getAsync({asyncId: asyncResult.id}, (resp) => {
+                console.log("Polling...");
+                if (handleResponse(resp)){
+                    clearInterval(intervalId);
+                }
+            });
+        }, pollInterval);
+    });
+};
+
 module.exports = window.API = API;
