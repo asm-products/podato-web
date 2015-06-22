@@ -18,9 +18,8 @@ gulp.task("javascript", function(){
         entries: ['./webapp/static/jssrc/main.js'],
         debug: true
     });
-    bundler.transform("reactify", {es6: true});
+    bundler.transform("babelify");
     bundler.transform("./configloader.js");
-    bundler.transform("es6ify");
 
     var bundle = function() {
         return bundler

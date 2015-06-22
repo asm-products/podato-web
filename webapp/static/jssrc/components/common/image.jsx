@@ -13,8 +13,19 @@ const Image = React.createClass({
         }
     },
     componentDidMount(){
+        this.setSrc();
+    },
+    componentWillReceiveProps(newProps){
+        this.setSrc(newProps.src);
+    },
+    setSrc(src){
+        src = src || this.props.src;
         const width = this.refs.image.getDOMNode().offsetWidth;
-        this.setState({src: "https://4hmnownffauj.firesize.com/"+width+"x/"+this.props.src});
+        if(src.search("gravatar") >= 0){
+            this.setState({src: src + "?s="+width});
+            return;
+        }
+        this.setState({src: "https://4hmnownffauj.firesize.com/"+width+"x/"+ src});
     }
 });
 

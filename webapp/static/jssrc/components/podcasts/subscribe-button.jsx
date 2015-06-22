@@ -9,7 +9,7 @@ const SubscribeButton = React.createClass({
     mixins: [CurrentUserStore.mixin, SubscriptionsStore.mixin],
     render(){
         if(!this.state.user) return (<span>Log in to subscribe.</span>);
-        if(!this.state.subscriptions){
+        if(!this.state.userSubscriptions){
             if(this.state.fetching){
                 return (<Spinner></Spinner>);
             }
@@ -17,9 +17,9 @@ const SubscribeButton = React.createClass({
         }
 
         var className = "button " + (this.props.className || "");
-        if(!this.state.subscribed){
+        if(!this.state.isSubscribed){
             return (
-                <button disabled="true" className={className} onClick={this.subscribe} disabled={this.state.disabled}>Subscribe</button>
+                <button className={className} onClick={this.subscribe} disabled={this.state.disabled}>Subscribe</button>
             )
         }
         className = "button bg-darken-4" + (this.props.className || "");
@@ -31,9 +31,9 @@ const SubscribeButton = React.createClass({
     makeState(){
         return {
             user: CurrentUserStore.getCurrentUser(),
-            subscriptions: SubscriptionsStore.getSubscriptions("me"),
+            userSubscriptions: SubscriptionsStore.getSubscriptions("me"),
             fetching: SubscriptionsStore.isFetchingSubscriptions("me"),
-            subscribed: SubscriptionsStore.isSubscribedTo("me", this.props.podcast),
+            isSubscribed: SubscriptionsStore.isSubscribedTo("me", this.props.podcast),
         }
     },
     getInitialState(){
@@ -54,7 +54,7 @@ const SubscribeButton = React.createClass({
     },
     storeDidChange(){
         var newState = this.makeState();
-        if(newState.subscribed !== this.state.subscribed){
+        if(newState.isSubscribed !== this.state.isSubscribed){
             newState.disabled=false;
         }
         this.setState(newState);

@@ -22,7 +22,7 @@ class UserResource(Resource):
     @api.marshal_with(user_fields)
     @api.doc(id="getUser", security=[{"javascript":[]}, {"server":[]}])
     def get(self, userId):
-        """Get a user."""
+""Get a user."""
         if userId == "me":
             valid, req = oauth.verify_request(["publicuserinfo/read"])
             if not valid:

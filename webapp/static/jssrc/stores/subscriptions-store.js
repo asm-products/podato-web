@@ -22,7 +22,7 @@ const SubscriptionsStore = mcfly.createStore({
 }, function(data){
     switch(data.actionType){
         case constants.actionTypes.SUBSCRIPTIONS_FETCHED:
-            subscriptions[data.userId] = data.subscriptions;
+            subscriptions[data.userId] = data.userSubscriptions;
             if (fetching.indexOf(data.userId) >= 0){
                 fetching.splice(fetching.indexOf(data.userId), 1);
             }

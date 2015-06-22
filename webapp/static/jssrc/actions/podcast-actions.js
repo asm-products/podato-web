@@ -70,7 +70,7 @@ const PodcastActions = mcfly.createActions({
                     }
                     resolve({
                         actionType: constants.actionTypes.SUBSCRIPTIONS_FETCHED,
-                        subscriptions: resp.obj.map(transformPodcast),
+                        userSubscriptions: resp.obj.map(transformPodcast),
                         userId: userId
                     })
                 })

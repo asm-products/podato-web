@@ -22,7 +22,7 @@ const Home = React.createClass({
             auth = (<a>Get started</a>);
             var subscriptions = [
                 <h3 key="heading">Subscriptions</h3>,
-                <PodcastGrid podcasts={this.state.subscriptions} className="sm-col sm-col-12 clearfix mxn2" key="grid" />,
+                <PodcastGrid podcasts={this.state.userSubscriptions} className="sm-col sm-col-12 clearfix mxn2" key="grid" />,
                 <hr key="hr" />
                 ]
         }
@@ -53,7 +53,7 @@ const Home = React.createClass({
         }
     },
     getInitialState(){
-        return {authState: null, popularPodcasts: [], subscriptions: []};
+        return {authState: null, popularPodcasts: [], userSubscriptions: []};
     },
     storeDidChange(){
         var authState = null;
@@ -70,7 +70,7 @@ const Home = React.createClass({
         this.setState({
             authState: authState,
             popularPodcasts: PopularPodcastsStore.get(),
-            subscriptions: SubscriptionsStore.getSubscriptions("me") || [   ]
+            userSubscriptions: SubscriptionsStore.getSubscriptions("me") || [   ]
         });
     }
 });

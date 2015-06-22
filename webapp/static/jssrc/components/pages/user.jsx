@@ -3,6 +3,8 @@ const React = require("react");
 const UsersStore = require("../../stores/users-store");
 const AuthActions = require("../../actions/auth-actions");
 
+const Image = require("../common/image.jsx");
+
 const User = React.createClass({
     mixins: [UsersStore.mixin],
     contextTypes: {router: React.PropTypes.func},
@@ -16,7 +18,7 @@ const User = React.createClass({
                 </div>
                 <div className="clearfix mxn2">
                     <div className="sm-col sm-col-1 md-col-3 p2">
-                        <img src={this.state.user.avatar_url} />
+                        <Image src={this.state.user.avatar_url} className="full-width" />
                     </div>
                     <div className="sm-col sm-col-11 md-col-9 clearfix p2">
                         <div className="sm-col sm-col-12">
@@ -30,7 +32,7 @@ const User = React.createClass({
     getInitialState(){
         return {user:{
             username: "Loading ...",
-            avatar_url: "/img/logo.png"
+            avatar_url: "https://podato.herokuapp.com/img/logo.png"
         }};
     },
     componentWillMount(){
