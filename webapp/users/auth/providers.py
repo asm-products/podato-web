@@ -20,6 +20,7 @@ twitter = twitter.register_to(oauth)
 twitter.tokengetter(_make_token_getter("twitter"))
 
 def get_provider(provider):
+    """Returns the requested identity provider or None if it doesn't exist."""
     return {
         "facebook": facebook,
         "google": google,

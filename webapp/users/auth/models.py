@@ -6,13 +6,14 @@ from webapp.db import db
 from webapp.users.auth import facebook_api
 
 class ProvidedIdentity(db.EmbeddedDocument):
+    """Model that represents a user identity as provided by a 3rd party identity provider."""
     provider = db.StringField(required=True)
     user_id = db.StringField(required=True)
     access_token = db.StringField(required=True)
 
 
 class ProviderTokenHolder(object):
-    """This is one of User's superclasses, which stores the auth tokens of 3rd party providers like Facebook or Google"""
+    """This is a mixin for User, which stores the auth tokens of 3rd party providers like Facebook or Google"""
 
     provided_identities = db.EmbeddedDocumentListField(ProvidedIdentity)
 
@@ -34,6 +35,7 @@ class ProviderTokenHolder(object):
         self.modify(push__provided_identities=prid)
 
     def get_provider_token(self, provider, user_id=None):
+        """Gets the access token for a specific provided identity."""
         for identity in self.provided_identities:
             if identity.provider == provider:
                 if user_id == None or identity.user_id == user_id:

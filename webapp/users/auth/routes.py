@@ -24,23 +24,27 @@ def _validate_next(next):
         raise errors.AuthError("Can't redirect to an absolute url after login. (%s is absolute.)" % next)
 
 def _save_next(next):
+    """Save the url to go to after login, and return te key with which it is associated."""
     key = os.urandom(16).encode("hex")
     cache.set(key, next, 600)
     return key
 
 
 def _get_next(key):
+    """Get the url to go to after login, by its associated key."""
     return cache.get(key)
 
 
 @users_blueprint.route("/login")
 def login():
+    """Show a page to select a login provider."""
     next = request.args.get("next")
     return render_template("login.html", next=next)
 
 
 @users_blueprint.route("/login/<provider>")
 def provider_login(provider):
+    """Log in with the given provider."""
     # The next_token doesn't only store the 'next' value, but it also acts as a CSRF token.
     next = request.args.get("next") or "/"
     next_token = _save_next(next)

@@ -12,6 +12,7 @@ import errors
 
 
 def create_session_token(user):
+    """Creates a new session token, and stores it on the session."""
     token = os.urandom(16).encode("hex")
     cache.set("session-" + token, str(user.id), 600)
     session["user_id"] = str(user.id)
@@ -19,6 +20,7 @@ def create_session_token(user):
 
 
 def get_user():
+    """get the user for the current session."""
     token = session.get("token")
     user_id = session.get("user_id")
 
@@ -35,6 +37,7 @@ def get_user():
     return User.get_by_id(user_id)
 
 def require(f):
+    """A decorator that you can add to a funciton to require a session to be present."""
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
         if not get_user():
