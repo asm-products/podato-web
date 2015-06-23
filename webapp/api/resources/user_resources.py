@@ -22,7 +22,7 @@ class UserResource(Resource):
     @api.marshal_with(user_fields)
     @api.doc(id="getUser", security=[{"javascript":[]}, {"server":[]}])
     def get(self, userId):
-""Get a user."""
+        """Get a user."""
         if userId == "me":
             valid, req = oauth.verify_request(["publicuserinfo/read"])
             if not valid:
@@ -32,7 +32,8 @@ class UserResource(Resource):
             user = User.get_by_id(userId)
 
         if not user:
-            abort(404, "No user with the given id.")
+            abort(404, message="User not found: %s." % userId)
+            return
 
         # make sure the client is authorized to get the user's email.
         valid, req = oauth.verify_request(["userinfo/email"])
@@ -88,7 +89,8 @@ class SubscriptionsResource(Resource):
                 raise AuthorizationRequired()
             user = req.user
         else:
-            user = User.get_by_id(userIdz)
+            user = User.get_by_id(userId)
         if not user:
             abort(404, message="User not found.")
+            return
         return user.subscriptions

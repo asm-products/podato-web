@@ -57,7 +57,10 @@ class ProviderTokenHolder(object):
     @classmethod
     def login_facebook(cls, facebook_response):
         """Gets or creates a user, based on the facebook_response."""
-        access_token = facebook_response["access_token"]
+        try:
+            access_token = facebook_response["access_token"]
+        except:
+            raise ValueError("%s: %s\n%s" % (facebook_response.type, facebook_response.message, facebook_response.data))
         fb_user = facebook_api.get_current_user(access_token)
         user = cls.get_by_provided_identity("facebook", fb_user["id"])
         if not user:

@@ -19,7 +19,7 @@ def validate_url(url, allow_hash=True):
     parsed = urlparse.urlparse(url)
     if not parsed.scheme in ['http', 'https']:
         raise ValueError('The following url is invalid: %s, it has an'
-                         'unsupported scheme, only http and https are valid.' % url)
+                         'unsupported scheme: %s, only http and https are valid.' % (url, parsed.scheme))
     if not parsed.netloc:
         raise ValueError('The following url is invalid: %s, it doesn\'t seem to have a domain.' % uri)
     if not allow_hash and parsed.fragment:

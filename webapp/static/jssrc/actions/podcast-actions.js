@@ -3,7 +3,7 @@ const api = require("../api");
 const constants = require("../constants");
 
 var transformPodcast = function(podcast){
-    podcast.id = encodeURIComponent(podcast.id);
+    podcast.encoded_id = encodeURIComponent(podcast.id);
     return podcast;
 }
 

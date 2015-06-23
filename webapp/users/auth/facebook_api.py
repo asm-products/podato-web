@@ -10,4 +10,4 @@ def get_current_user(access_token=None):
 
 def get_avatar(user_id):
     """Gets the avatar of the facebook user with the given id."""
-    return "https://"
+    return "https://graph.facebook.com/%s/%s/picture" % (API_VERSION, user_id)

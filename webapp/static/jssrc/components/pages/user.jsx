@@ -4,6 +4,7 @@ const UsersStore = require("../../stores/users-store");
 const AuthActions = require("../../actions/auth-actions");
 
 const Image = require("../common/image.jsx");
+const SubscriptionsGrid = require("../podcasts/subscriptions-grid.jsx")
 
 const User = React.createClass({
     mixins: [UsersStore.mixin],
@@ -20,9 +21,10 @@ const User = React.createClass({
                     <div className="sm-col sm-col-1 md-col-3 p2">
                         <Image src={this.state.user.avatar_url} className="full-width" />
                     </div>
-                    <div className="sm-col sm-col-11 md-col-9 clearfix p2">
-                        <div className="sm-col sm-col-12">
-                            <p>More stuff here.</p>
+                    <div className="sm-col sm-col-11 md-col md-col-9 p2">
+                        <h2>Subscriptions</h2>
+                        <div className="clearfix mxn1">
+                            {this.state.user.id ? (<SubscriptionsGrid userId={this.state.user.id} />) : "..."}
                         </div>
                     </div>
                 </div>
