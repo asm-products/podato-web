@@ -30,7 +30,8 @@ podcast_fields = api.model("podcast_simple", {
     "title": fields.String,
     "author": fields.String,
     "image": fields.String,
-    "description": fields.String
+    "description": fields.String,
+    "subscribers": fields.Integer
 })
 
 class Duration(fields.Raw):
@@ -40,10 +41,9 @@ class Duration(fields.Raw):
         minutes = (value % 3600)/60
         value = value-minutes*60
         hours = value / 3600
-
         if hours == 0:
-            return "%s:%s" % (minutes, seconds)
-        return "%s:%s:%s" % (hours, minutes, seconds)
+            return "%02d:%02d" % (minutes, seconds)
+        return "%s:%02d:%02d" % (hours, minutes, seconds)
 
 
 class Explicit(fields.Raw):
