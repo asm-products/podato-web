@@ -25,6 +25,12 @@ const Image = React.createClass({
             this.setState({src: src + "?s="+width});
             return;
         }
+
+        if(src.search("graph.facebook.com") >= 0){
+            this.setState({src: src+ "?width="+width});
+            return
+        }
+
         this.setState({src: "https://4hmnownffauj.firesize.com/"+width+"x/"+ src});
     }
 });
