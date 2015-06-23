@@ -61,6 +61,8 @@ api.addListener("authenticated", authListener);
 api.addListener("unauthenticated", unauthListener);
 if(api.isLoggedIn()){
     authListener();
+}else{
+    unauthListener();
 }
 
 module.exports = AuthActions;
