@@ -7,18 +7,21 @@ const PodcastsStore = require("../../stores/podcasts-store");
 
 const PodcastsActions = require("../../actions/podcast-actions");
 
+const Image = require("../common/image.jsx");
+
 const Podcast = React.createClass({
     mixins: [CurrentUserStore.mixin, PodcastsStore.mixin],
     contextTypes: {router: React.PropTypes.func},
     render(){
         var episodes = this.state.podcast.episodes.map((e) => {
             return (
-                <div className="sm-col sm-col-12 clearfix mxn1 mb2 border-bottom border-silver" key={e.guid}>
+                <div className="clearfix mxn1 mb1 border-bottom border-silver" key={e.guid}>
                     <div className="sm-col sm-col-1 px1">
-                        <img src={e.image || this.state.podcast.image} />
+                        <Image src={e.image || this.state.podcast.image} className="full-width" />
                     </div>
                     <div className="sm-col sm-col-11 px1 lh1">
-                        <span>{e.title}</span><br/>
+                        <span className="h5 bold">{e.title}</span>
+                        <span className="silver"> <i className="el el-calendar"/> {new Date(e.published).toLocaleString()} <i className="el el-time" /> {e.duration}</span><br/>
                         <span>{e.subtitle}</span>
                     </div>
                 </div>
@@ -33,19 +36,18 @@ const Podcast = React.createClass({
                 </div>
                 <div className="clearfix mxn2">
                     <div className="sm-col sm-col-1 md-col-3 p2">
-                        <img src={this.state.podcast.image} />
-                        <p>by {this.state.podcast.author}</p>
+                        <Image src={this.state.podcast.image} className="full-width" />
                         <p><SubscribeButton podcast={this.state.podcast.id} /></p>
+                        <p><strong>by:</strong> {this.state.podcast.author}</p>
+                        <p><strong>subscribers:</strong> {this.state.podcast.subscribers}</p>
                     </div>
-                    <div className="sm-col sm-col-11 md-col-9 clearfix p2">
-                        <div className="sm-col sm-col-12">
-                            <p>{this.state.podcast.description}</p>
-                        </div>
+                    <div className="sm-col sm-col-11 md-col-9 p2">
+                        <p>{this.state.podcast.description}</p>
                         {episodes}
                     </div>
                 </div>
-                <div className="clearfix">
-                    <div className="sm-col sm-col-12 p1">
+                <div className="clearfix mxn2">
+                    <div className="sm-col sm-col-12 p2">
                         <p className="gray">{this.state.podcast.copyright}</p>
                     </div>
                 </div>
@@ -55,7 +57,7 @@ const Podcast = React.createClass({
     getInitialState(){
         return {currentUser: CurrentUserStore.getCurrentUser(), podcast:{
             title: "Loading ...",
-            image: "/img/logo.png",
+            image: "https://podato.herokuapp.com/img/logo.png",
             episodes: []
         }};
     },
