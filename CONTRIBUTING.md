@@ -1,1 +1,1 @@
-To learn more about contributing, checkout [our wiki](https://github.com/asm-products/podato-web/wiki). 
+To learn more about contributing, checkout [our wiki](https://github.com/asm-products/podato-web/wiki).     

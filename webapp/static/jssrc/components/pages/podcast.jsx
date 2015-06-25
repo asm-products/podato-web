@@ -15,13 +15,13 @@ const Podcast = React.createClass({
     render(){
         var episodes = this.state.podcast.episodes.map((e) => {
             return (
-                <div className="clearfix mxn1 mb1 border-bottom border-silver" key={e.guid}>
+                <div className="clearfix mxn1 py2 border-bottom border-silver" key={e.guid}>
                     <div className="sm-col sm-col-1 px1">
                         <Image src={e.image || this.state.podcast.image} className="full-width" />
                     </div>
                     <div className="sm-col sm-col-11 px1 lh1">
                         <span className="h5 bold">{e.title}</span>
-                        <span className="silver"> <i className="el el-calendar"/> {new Date(e.published).toLocaleString()} <i className="el el-time" /> {e.duration}</span><br/>
+                        <span className="silver inline-block"><i className="ml1 el el-calendar"/> {new Date(e.published).toLocaleDateString()} <i className="ml1 el el-time" /> {e.duration}</span><br/>
                         <span>{e.subtitle}</span>
                     </div>
                 </div>
