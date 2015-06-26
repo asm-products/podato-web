@@ -8,10 +8,12 @@ const PodcastGrid = React.createClass({
             return <Spinner />
         }
         return (<div {...this.props}>
-                {this.props.podcasts.map((podcast) => {
-                    return <PodcastTile podcast={podcast} key={podcast.id} />
-                })}
-            </div>)
+                    <div className="clearfix mxn2">
+                        {this.props.podcasts.map((podcast) => {
+                            return <PodcastTile podcast={podcast} key={podcast.id} />
+                        })}
+                    </div>
+                </div>)
     }
 });
 
