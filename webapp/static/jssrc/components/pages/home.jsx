@@ -34,13 +34,14 @@ const Home = React.createClass({
                 <p className="center">
                     {auth}
                 </p>
-                {subscriptions}
+                <div className="clearfix">
+                    {subscriptions}
+                </div>
                 <h3>Popular podcasts</h3>
                 <div className="clearfix">
                     <PodcastGrid podcasts={this.state.popularPodcasts} className="sm-col sm-col-12 clearfix mxn2" />
                 </div>
                 <hr />
-                {}
             </div>
         );
     },
