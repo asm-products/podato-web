@@ -39,7 +39,7 @@ const Home = React.createClass({
                 </div>
                 <h3>Popular podcasts</h3>
                 <div className="clearfix">
-                    <PodcastGrid podcasts={this.state.popularPodcasts} className="sm-col sm-col-12 clearfix mxn2" />
+                    <PodcastGrid podcasts={this.state.popularPodcasts} className="sm-col sm-col-12" />
                 </div>
                 <hr />
             </div>
