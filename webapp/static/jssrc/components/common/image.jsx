@@ -4,7 +4,7 @@ const Image = React.createClass({
     render(){
         var className = "button not-rounded " + (this.props.className || "");
         return (
-            <img {...this.props} src={this.state.src} ref="image" />
+            <img {...this.props} src={this.state.src} ref="image" alt={this.props.alth || ""} />
         );
     },
     getInitialState(){

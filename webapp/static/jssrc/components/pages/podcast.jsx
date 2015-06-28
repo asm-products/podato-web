@@ -14,6 +14,7 @@ const Podcast = React.createClass({
     contextTypes: {router: React.PropTypes.func},
     render(){
         var episodes = this.state.podcast.episodes.map((e) => {
+            var published = new Date(e.published);
             return (
                 <div className="clearfix mxn1 py2 border-bottom border-silver" key={e.guid}>
                     <div className="sm-col sm-col-3 lg-col-1 px1">
@@ -21,7 +22,9 @@ const Podcast = React.createClass({
                     </div>
                     <div className="sm-col sm-col-9 lg-col-11 px1 lh1">
                         <span className="h5 bold">{e.title}</span>
-                        <span className="silver inline-block"><i className="ml1 el el-calendar"/> {new Date(e.published).toLocaleDateString()} <i className="ml1 el el-time" /> {e.duration}</span><br/>
+                        <span className="silver inline-block">
+                            <i className="ml1 el el-calendar" aria-label="published:"/>
+                            <date dateTime={e.published}>{published.toLocaleDateString()}</date> <i className="ml1 el el-time" aria-label="duration:" /> {e.duration}</span><br/>
                         <span>{e.subtitle}</span>
                     </div>
                 </div>
@@ -35,19 +38,19 @@ const Podcast = React.createClass({
                     </div>
                 </div>
                 <div className="clearfix mxn2">
-                    <div className="sm-col sm-col-1 md-col-3 p2">
+                    <div className="col col-1 md-col-3 p2">
                         <Image src={this.state.podcast.image} className="full-width" />
                         <p><SubscribeButton podcast={this.state.podcast.id} /></p>
                         <p><strong>by:</strong> {this.state.podcast.author}</p>
                         <p><strong>subscribers:</strong> {this.state.podcast.subscribers}</p>
                     </div>
-                    <div className="sm-col sm-col-11 md-col-9 p2">
+                    <div className="col col-11 md-col-9 p2">
                         <p>{this.state.podcast.description}</p>
                         {episodes}
                     </div>
                 </div>
                 <div className="clearfix mxn2">
-                    <div className="sm-col sm-col-12 p2">
+                    <div className="col col-12 p2">
                         <p className="gray">{this.state.podcast.copyright}</p>
                     </div>
                 </div>
