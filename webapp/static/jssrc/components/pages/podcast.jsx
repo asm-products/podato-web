@@ -24,7 +24,7 @@ const Podcast = React.createClass({
                         <span className="h5 bold">{e.title}</span>
                         <span className="silver inline-block">
                             <i className="ml1 el el-calendar" aria-label="published:"/>
-                            <date dateTime={e.published}>{published.toLocaleDateString()}</date> <i className="ml1 el el-time" aria-label="duration:" /> {e.duration}</span><br/>
+                            <date dateTime={published.toISOString()}>{published.toLocaleDateString()}</date> <i className="ml1 el el-time" aria-label="duration:" /> {e.duration}</span><br/>
                         <span>{e.subtitle}</span>
                     </div>
                 </div>
