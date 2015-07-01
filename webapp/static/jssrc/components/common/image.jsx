@@ -31,7 +31,7 @@ const Image = React.createClass({
             return
         }
 
-        this.setState({src: "https://4hmnownffauj.firesize.com/"+width+"x/"+ src});
+        this.setState({src: "https://podato-images.appspot.com/"+width+"?url="+ src});
     }
 });
 
