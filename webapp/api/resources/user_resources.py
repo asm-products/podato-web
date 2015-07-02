@@ -11,8 +11,10 @@ from webapp.api.oauth import AuthorizationRequired
 from webapp.api.blueprint import api
 from webapp.api.representations import user_fields, subscribe_fields, podcast_fields, success_status
 from webapp.users import User
+from webapp.users.auth import session
 
 ns = api.namespace("users")
+
 
 @ns.route("/<string:userId>", endpoint="user")
 @api.doc(params={"userId": "A user ID, or \"me\" without quotes, for the user associated with the provided access token."})
@@ -39,6 +41,7 @@ class UserResource(Resource):
         if not (valid and (userId == "me" or userId == req.user.id)):
             return AttributeHider(user, ["primary_email"])
         return user
+
 
 podcastsParser = api.parser()
 podcastsParser.add_argument(name="podcast", required=True, location="args")
@@ -93,3 +96,15 @@ class SubscriptionsResource(Resource):
             abort(404, message="User not found.")
             return
         return user.subscriptions
+
+
+@ns.route("/logout", endpoint="logout")
+class Logout(Resource):
+    """Log out the current user. This method can only be called by trusted applications."""
+    @api.doc(id="logout", security=[{"javascript":[]}, {"server":[]}])
+    def get(self):
+        valid, req = oauth.verify_request([])
+        if not valid or not req.client.app.trusted:
+            raise AuthorizationRequired
+        session.destroy_session()
+        return {"success": True}
