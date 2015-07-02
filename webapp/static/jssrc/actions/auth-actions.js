@@ -19,7 +19,11 @@ const AuthActions = mcfly.createActions({
         };
     },
     logout(){
-        api.logout();
+        API.users.logout({}, (res) => {
+            if(res.obj.success){
+                api.logout();
+            }
+        })
         return {
             actionType: constants.actionTypes.LOGGING_OUT
         }
