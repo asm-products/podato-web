@@ -19,12 +19,12 @@ const SubscribeButton = React.createClass({
         var className = "button " + (this.props.className || "");
         if(!this.state.isSubscribed){
             return (
-                <button className={className} onClick={this.subscribe} disabled={this.state.disabled}>Subscribe</button>
+                <button {...this.props} className={className} onClick={this.subscribe} disabled={this.state.disabled}>Subscribe</button>
             )
         }
         className = "button bg-darken-4" + (this.props.className || "");
         return (
-            <button className={className} onClick={this.unsubscribe} disabled={this.state.disabled}>Unsubscribe</button>
+            <button {...this.props} className={className} onClick={this.unsubscribe} disabled={this.state.disabled}>Unsubscribe</button>
         )
 
     },

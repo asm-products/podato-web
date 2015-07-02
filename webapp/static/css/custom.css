@@ -1,0 +1,6 @@
+/* A helper class, because basscss doesn't have an unprefixed version of sm-hide and friends.
+Well, it does have a .hide class, but that's used for hiding something visually, and not for screen readers.*/
+
+.all-hide{
+    display: none !important;
+}
