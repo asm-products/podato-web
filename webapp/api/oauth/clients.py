@@ -153,7 +153,7 @@ class Client(Model):
 
 
 def _load_trusted_clients():
-    """Loads al trusted clients"""
+    """Loads al trusted clients """
     global PODATO_APP
     if TRUSTED_CLIENTS:
         return TRUSTED_CLIENTS

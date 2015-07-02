@@ -19,6 +19,11 @@ def create_session_token(user):
     session["token"] = token
 
 
+def destroy_session():
+    """Destroys the current user session."""
+    session.clear()
+
+
 def get_user():
     """get the user for the current session."""
     token = session.get("token")

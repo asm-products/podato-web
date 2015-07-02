@@ -82,7 +82,7 @@ class BearerToken(Model):
         expires = datetime.datetime.utcnow() + datetime.timedelta(seconds=expires_in)
         return cls(access_token=access_token,
                    refresh_token=refresh_token,
-                   client_id=str(client.id),
+                   client_id=client.client_id,
                    user=user,
                    token_type=token_type,
                    scopes=scopes,

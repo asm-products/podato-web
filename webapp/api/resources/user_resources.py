@@ -12,7 +12,6 @@ from webapp.api.blueprint import api
 from webapp.api.representations import user_fields, subscribe_fields, podcast_fields, success_status
 from webapp.users import User
 
-
 ns = api.namespace("users")
 
 @ns.route("/<string:userId>", endpoint="user")
