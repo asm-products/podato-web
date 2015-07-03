@@ -53,7 +53,12 @@ def provider_login(provider):
     if not provider_instance:
         abort(404)
 
-    return provider_instance.authorize(callback=url_for("auth.authorized", _external=True, provider=provider, state=next_token), state=next_token)
+    # Twitter uses OAuth 1.0a, which doesn't support the 'state' parameter, so we include it in the callback url.
+    callback_state = None
+    if provider == "twitter":
+        callback_state = next_token
+
+    return provider_instance.authorize(callback=url_for("auth.authorized", _external=True, provider=provider, callback_state), state=next_token)
 
 
 @users_blueprint.route("/authorized/<provider>")
