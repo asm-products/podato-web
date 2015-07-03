@@ -53,8 +53,9 @@ function initPodatoAuth(root, client, client_id, scopes) {
             grant_type: "implicit",
             response_type: "token"
         });
-        var wleft = (window.outerWidth - 200)/2;
-        window.open(authorize_url, "Log In to Podato", "width=200,left="+wleft);
+        var wleft = (window.outerWidth - 400)/2;
+        var win = window.open(authorize_url, "Log In to Podato", "width=400,height=400,left="+wleft);
+        this.checkWindowClose(win);
 
         if (!this._loginCallbackAttached) {
             window.addEventListener("message", this.onMessage.bind(this), false);
@@ -72,6 +73,19 @@ function initPodatoAuth(root, client, client_id, scopes) {
             }
         } else{
             console.log("Message from unknown origin: " + event.origin);
+        }
+    }
+
+    API.PodatoAuth.prototype.checkWindowClose = function(win){
+        var self = this;
+        if (win.closed){
+            if(!self.isAuthenticated()){
+                API.emit("loginCancelled");
+            }
+        }else{
+            setTimeout(() => {
+                self.checkWindowClose(win);
+            }, 500);
         }
     }
 
