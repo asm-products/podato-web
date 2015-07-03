@@ -68,3 +68,7 @@ class ProviderTokenHolder(object):
             user.put()
         user.add_provided_identity("facebook", fb_user["id"], access_token)
         return user
+
+    @classmethod
+    def login_twitter(cls, twitter_response):
+        raise ValueError("%s: %s\n%s" % (twitter_response.type, twitter_response.message, twitter_response.data))

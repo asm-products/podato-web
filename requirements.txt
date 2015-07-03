@@ -21,3 +21,4 @@ flask-redis
 feedparser
 celery
 eventlet
+tweepy==3.3.0

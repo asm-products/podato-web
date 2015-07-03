@@ -53,7 +53,7 @@ def provider_login(provider):
     if not provider_instance:
         abort(404)
 
-    return provider_instance.authorize(callback=url_for("auth.authorized", _external=True, provider=provider), state=next_token)
+    return provider_instance.authorize(callback=url_for("auth.authorized", _external=True, provider=provider, state=next_token), state=next_token)
 
 
 @users_blueprint.route("/authorized/<provider>")
