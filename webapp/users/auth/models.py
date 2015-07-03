@@ -72,6 +72,6 @@ class ProviderTokenHolder(object):
 
     @classmethod
     def login_twitter(cls, twitter_response):
-        access_token = twitter_respons.get("access_token")
+        access_token = twitter_response.get("access_token")
         tw_user = TwitterProvider.api(access_token).me()
         raise ValueError(dir(tw_user))
