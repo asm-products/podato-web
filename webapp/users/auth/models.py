@@ -4,6 +4,7 @@ from flask import abort
 from webapp.db import db
 
 from webapp.users.auth import facebook_api
+from webapp.users.auth.providers import TwitterProvider
 
 class ProvidedIdentity(db.EmbeddedDocument):
     """Model that represents a user identity as provided by a 3rd party identity provider."""
@@ -71,4 +72,6 @@ class ProviderTokenHolder(object):
 
     @classmethod
     def login_twitter(cls, twitter_response):
-        raise ValueError("%s: %s\n%s" % (twitter_response.type, twitter_response.message, twitter_response.data))
+        access_token = twitter_respons.get("access_token")
+        tw_user = TwitterProvider.api(access_token).me()
+        raise ValueError(dir(tw_user))
