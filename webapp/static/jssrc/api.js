@@ -53,7 +53,8 @@ function initPodatoAuth(root, client, client_id, scopes) {
             grant_type: "implicit",
             response_type: "token"
         });
-        window.open(authorize_url, "Log In to Podato", "height=200,width=200")
+        var wleft = (window.outerWidth - 200)/2;
+        window.open(authorize_url, "Log In to Podato", "width=200,left="+wleft);
 
         if (!this._loginCallbackAttached) {
             window.addEventListener("message", this.onMessage.bind(this), false);
