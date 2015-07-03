@@ -76,7 +76,7 @@ class ProviderTokenHolder(object):
         tw_user = TwitterProvider.api(access_token).me()
         user = cls.get_by_provided_identity("twitter", tw_user.id_str)
         if not user:
-            user = cls.create(tw_user.screen_name, "", tw_user.profile_image_url_https)
+            user = cls.create(tw_user.screen_name, None, tw_user.profile_image_url_https)
             user.put()
         user.add_provided_identity("twitter", tw_user.id_str, access_token)
         return user
