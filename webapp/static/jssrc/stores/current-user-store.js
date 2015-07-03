@@ -19,6 +19,9 @@ const CurrentUserStore = mcfly.createStore({
             loggingIn = false;
             localStorage.currentUser = null;
             break;
+        case constants.actionTypes.LOGIN_CANCELLED:
+            loggingIn = false;
+            break;
         default:
             return
     }

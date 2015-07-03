@@ -33,6 +33,11 @@ const AuthActions = mcfly.createActions({
             actionType: constants.actionTypes.LOGGED_OUT
         }
     },
+    loginCancelled(){
+        return {
+            actionType: constants.actionTypes.LOGIN_CANCELLED
+        }
+    },
     fetchUser(userId){
         return new Promise((resolve, reject) => {
             api.loaded.then(() => {
@@ -61,8 +66,14 @@ var unauthListener = () => {
     AuthActions.loggedOut();
 }
 
-api.addListener("authenticated", authListener);
+var cancelListener = () => {
+    AuthActions.loginCancelled();
+}
+
 api.addListener("unauthenticated", unauthListener);
+api.addListener("loginCancelled", cancelListener)
+api.addListener("authenticated", authListener);
+
 if(api.isLoggedIn()){
     authListener();
 }else{
