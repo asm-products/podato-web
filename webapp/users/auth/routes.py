@@ -58,7 +58,7 @@ def provider_login(provider):
     if provider == "twitter":
         callback_state = next_token
 
-    return provider_instance.authorize(callback=url_for("auth.authorized", _external=True, provider=provider, callback_state), state=next_token)
+    return provider_instance.authorize(callback=url_for("auth.authorized", _external=True, provider=provider, action=callback_state), state=next_token)
 
 
 @users_blueprint.route("/authorized/<provider>")
