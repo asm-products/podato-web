@@ -22,7 +22,7 @@ const Image = React.createClass({
         src = src || this.props.src;
         const width = this.refs.image.getDOMNode().offsetWidth;
         if(src.search("gravatar") >= 0){
-            this.setState({src: src + "?s="+width});
+            this.setState({src: src + "?s="+width + "&d=wavatar"});
             return;
         }
 
