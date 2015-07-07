@@ -1,7 +1,8 @@
 const React = require("react");
 
-const LoginButton = require("../auth/login-button.jsx")
-const PodcastGrid = require("../podcasts/podcast-grid.jsx")
+const LoginButton = require("../auth/login-button.jsx");
+const PodcastGrid = require("../podcasts/podcast-grid.jsx");
+const ImportButton = require("../podcasts/import-button.jsx");
 const CurrentUserStore = require("../../stores/current-user-store");
 const PopularPodcastsStore = require("../../stores/popular-podcasts-store");
 const SubscriptionsStore = require("../../stores/subscriptions-store");
@@ -22,6 +23,7 @@ const Home = React.createClass({
             auth = (<a>Get started</a>);
             var subscriptions = [
                 <h3 key="heading">Subscriptions</h3>,
+                <ImportButton/>,
                 <PodcastGrid podcasts={this.state.userSubscriptions} className="sm-col sm-col-12" key="grid" />,
                 <hr key="hr" />
                 ]
