@@ -29,7 +29,8 @@ var routes = (
     <Route name="app" path="/" handler={App}>
         <DefaultRoute name="home" handler={Home} />
         <Route name="podcast" path="podcasts/*/" handler={Podcast} />
-        <Route name="user" path="users/:userId" handler={User} />
+        <Route name="user" path="users/:userId" handler={User} chro
+        />
     </Route>
 )
 
