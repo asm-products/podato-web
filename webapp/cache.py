@@ -4,19 +4,21 @@ redis = Redis()
 
 def _add_key_prefix(collection, prefix):
     if isinstance(collection, dict):
-        return {prefix + key: value for key, value in collection}
+        return {prefix + key: value for key, value in collection.iteritems()}
     elif isinstance(collection, list):
         return [prefix + key for key in collection]
     else:
         raise ValueError("Expected dictionary or list, got %s" % type(collection))
 
+
 def init_cache(app):
     redis.init_app(app)
+
 
 def set(name, value, expires=0):
     """Sets the value for the given key. If expires is not 0, the value will be removed after the given number of seconds."""
     if expires == 0:
-        return redis.set(key, value)
+        return redis.set(name, value)
     return redis.setex(name, value, expires)
 
 def set_multi(pairs, expires=0, key_prefix=""):
@@ -27,9 +29,10 @@ def set_multi(pairs, expires=0, key_prefix=""):
         return redis.mset(pairs)
     p = redis.pipeline()
     p.mset(pairs)
-    for name in pairs:
+    for name in pairs.keys():
         p.expire(name, expires)
-    return p.execute()
+    r = p.execute()
+    return r
 
 def get(key):
     """Get the value associated with the given key."""
@@ -42,4 +45,5 @@ def get_multi(keys, key_prefix=""):
     if key_prefix:
         keys = _add_key_prefix(keys, key_prefix)
 
-    return redis.mget(keys)
+    values = redis.mget(keys)
+    return {keys[i]: values[i] for i in xrange(len(keys))}
