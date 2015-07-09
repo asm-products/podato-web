@@ -42,8 +42,9 @@ def get_multi(keys, key_prefix=""):
     """Returns all values associated with the given keys.
     Returns a dictionary mapping keys to values.
     key_prefix is not included in the dictionary keys."""
+    original_keys = keys
     if key_prefix:
         keys = _add_key_prefix(keys, key_prefix)
 
     values = redis.mget(keys)
-    return {keys[i]: values[i] for i in xrange(len(keys))}
+    return {original_keys[i]: values[i] for i in xrange(len(keys))}

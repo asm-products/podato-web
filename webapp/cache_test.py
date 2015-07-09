@@ -81,4 +81,4 @@ def test_get_multi_prefix(monkeypatch):
     monkeypatch.setattr(cache, "redis", redis)
     redis.set("test-foo1", "bar1")
     redis.set("test-foo2", "bar2")
-    assert cache.get_multi(["foo1", "foo2"], key_prefix="test-") == {"test-foo1": "bar1", "test-foo2": "bar2"}
+    assert cache.get_multi(["foo1", "foo2"], key_prefix="test-") == {"foo1": "bar1", "foo2": "bar2"}
