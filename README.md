@@ -1,4 +1,8 @@
-<a href="https://assembly.com/podato/bounties?utm_campaign=assemblage&utm_source=podato&utm_medium=repo_badge"><img src="https://asm-badger.herokuapp.com/podato/badges/tasks.svg" height="24px" alt="Open Tasks" /></a>
+# This project is moving.
+
+This project is moving. It was being developed on a platform called Assembly, which has moved on to creating a really cool [changelog product](https://assembly.com). If you want to help out on this project, you can do so at http://github.com/bigblind/podato.
+
+------
 
 #### Made by Assembly
 
